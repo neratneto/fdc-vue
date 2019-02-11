@@ -68,6 +68,15 @@ export default {
           value: client.social
         }]
         this.clientInfoLoader = false
+      }).catch(error => {
+        this.clientInfoLoader = false
+        if (error.message === '404') {
+          this.$confirm({ message: 'CPF não encontrado, deseja realizar cadastro?', cancelText: 'Tentar novamente' }).then(() => {
+            this.$router.push('/register')
+          })
+        } else {
+          this.$snackbar({ message: 'Ocorreu um erro, tente novamente', snackbarColor: 'error' })
+        }
       })
     },
     submit() {

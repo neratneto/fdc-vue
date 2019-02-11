@@ -5,11 +5,13 @@ import store from './store'
 import Vuetify from 'vuetify'
 import Moment from 'moment'
 import VueMomentLib from 'vue-moment-lib'
+import Confirm from '@/plugins/confirm/confirm.js'
 import Snackbar from '@/plugins/snackbar/snackbar.js'
 import 'vuetify/dist/vuetify.min.css'
 
 Moment.locale('pt-BR')
 
+Vue.use(Confirm)
 Vue.use(Snackbar)
 Vue.use(VueMomentLib, { moment: Moment })
 

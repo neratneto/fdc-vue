@@ -22,13 +22,16 @@ export default new Vuex.Store({
         state
       })
     },
-    async getClientInfo(id) {
+    async getClientInfo({}, id) {
       const { client } = await api.getClientInfoById(id)
       return client
     },
-    async getRentedGames() {
+    async getRentedGames({}) {
       const { data } = await api.getRentedGamesList()
       return data
+    },
+    async gameRevision({}, payload) {
+      const response = await api.postGameRevision(payload)
     }
   }
 })
