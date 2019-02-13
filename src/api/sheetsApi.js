@@ -1,8 +1,10 @@
+const internalSettings = JSON.parse(window.localStorage.getItem('fora_da_caixa'))
+
 const loadGapi = () => {
   return new Promise((resolve, reject) => {
     gapi.load('client', () => {
       gapi.client.init({
-        apiKey: window.localStorage.getItem('apiKey'), client_id: window.localStorage.getItem('client_id'), discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest'], scope: 'https://www.googleapis.com/auth/spreadsheets'}).then(() => {
+        apiKey: internalSettings.apiKey, client_id: internalSettings.client_id, discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest'], scope: 'https://www.googleapis.com/auth/spreadsheets'}).then(() => {
         resolve()
       })
     })
@@ -12,7 +14,7 @@ const loadGapi = () => {
 const getRange = (worksheet, range) => {
   return new Promise((resolve, reject) => {
     loadGapi().then(() => {
-      gapi.client.sheets.spreadsheets.values.get({spreadsheetId: window.localStorage.getItem('spreadsheetId'), range: `${worksheet}!${range}`}).then(response => {
+      gapi.client.sheets.spreadsheets.values.get({spreadsheetId: internalSettings.spreadsheetId, range: `${worksheet}!${range}`}).then(response => {
         resolve(response.result.values)
       })
     })
