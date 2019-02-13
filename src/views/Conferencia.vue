@@ -40,7 +40,7 @@ export default {
     submitLoader: false
   }),
   methods: {
-    ...mapActions(['gameRevision']),
+    ...mapActions(['setFullGamesList', 'gameRevision']),
     submit() {
       this.submitLoader = true
       const payload = {
@@ -64,6 +64,9 @@ export default {
         }
       })
     }
+  },
+  mounted() {
+    this.setFullGamesList()
   }
 }
 </script>

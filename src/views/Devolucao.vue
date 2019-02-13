@@ -6,10 +6,17 @@
 
 <script>
 import DevoLoc from '../components/DevoLoc.vue'
+import { mapActions } from 'vuex'
 
 export default {
   components: {
     DevoLoc
+  },
+  methods: {
+    ...mapActions(['setRentedGamesList'])
+  },
+  mounted() {
+    this.setRentedGamesList()
   }
 }
 </script>

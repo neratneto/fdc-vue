@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapState } from 'vuex'
 
 export default {
   props: {
@@ -43,12 +43,6 @@ export default {
         this.$emit('update:adminPassword', value)
       }
     }
-  },
-  methods: {
-    ...mapActions(['getGames'])
-  },
-  mounted() {
-    this.getGames()
   }
 }
 </script>
