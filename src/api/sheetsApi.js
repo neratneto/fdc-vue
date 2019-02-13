@@ -1,10 +1,8 @@
-const spreadsheetId = '1BXKZViBuh6g7m45W-gQuDSFSUj-8I5kGn-60WuwdTnM'
-
 const loadGapi = () => {
   return new Promise((resolve, reject) => {
     gapi.load('client', () => {
       gapi.client.init({
-        apiKey: 'AIzaSyDjw_0Cm--EFUyD_pHfoNQbkJ4H5vjbXBQ', client_id: '837997324881-lphqo6ae3n1g6bq8nfin5u9l02l0o8ef.apps.googleusercontent.com', discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest'], scope: 'https://www.googleapis.com/auth/spreadsheets'}).then(() => {
+        apiKey: window.localStorage.getItem('apiKey'), client_id: window.localStorage.getItem('client_id'), discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest'], scope: 'https://www.googleapis.com/auth/spreadsheets'}).then(() => {
         resolve()
       })
     })
@@ -14,7 +12,7 @@ const loadGapi = () => {
 const getRange = (worksheet, range) => {
   return new Promise((resolve, reject) => {
     loadGapi().then(() => {
-      gapi.client.sheets.spreadsheets.values.get({spreadsheetId, range: `${worksheet}!${range}`}).then(response => {
+      gapi.client.sheets.spreadsheets.values.get({spreadsheetId: window.localStorage.getItem('spreadsheetId'), range: `${worksheet}!${range}`}).then(response => {
         resolve(response.result.values)
       })
     })

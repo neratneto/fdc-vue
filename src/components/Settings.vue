@@ -10,18 +10,25 @@
     <v-card-text>
       <v-expansion-panel v-model="expansionPanel">
         <rented-games />
+        <v-expansion-panel-content>
+          <span class="body-2" slot="header">Configurações internas</span>
+          <v-layout justify-center>
+            <sheets-api-settings />
+          </v-layout>
+        </v-expansion-panel-content>
       </v-expansion-panel>
-
     </v-card-text>
   </v-card>
 </v-dialog>
 </template>
 
 <script>
+import SheetsApiSettings from '@/components/SheetsApiSettings.vue'
 import RentedGames from '@/components/RentedGames.vue'
 
 export default {
   components: {
+    SheetsApiSettings,
     RentedGames
   },
   data: () => ({
