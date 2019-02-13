@@ -47,7 +47,6 @@ export default {
     fetchClientInfo() {
       this.clientInfoLoader = true
       this.getClientInfo(this.cpf).then(client => {
-
         this.clientInfo = [{
           label: 'Nome completo',
           value: client.name
@@ -70,13 +69,9 @@ export default {
         this.clientInfoLoader = false
       }).catch(error => {
         this.clientInfoLoader = false
-        if (error.message === '404') {
-          this.$confirm({ message: 'CPF não encontrado, deseja realizar cadastro?', cancelText: 'Tentar novamente' }).then(() => {
-            this.$router.push('/register')
-          })
-        } else {
-          this.$snackbar({ message: 'Ocorreu um erro, tente novamente', snackbarColor: 'error' })
-        }
+        this.$confirm({ message: 'CPF não encontrado, deseja realizar cadastro?', cancelText: 'Tentar novamente' }).then(() => {
+          this.$router.push('/register')
+        })
       })
     },
     submit() {

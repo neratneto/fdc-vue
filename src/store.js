@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import * as api from '@/api'
 import * as sheetsApi from '@/api/sheetsApi.js'
 
 Vue.use(Vuex)
@@ -41,8 +40,8 @@ export default new Vuex.Store({
       })
     },
     async getClientInfo({}, id) {
-      const { client } = await api.getClientInfoById(id)
-      return client
+      const { data } = await sheetsApi.getClientInfoById(id)
+      return data
     },
     async getRentedGames({}) {
       const { data } = await sheetsApi.getRentedGamesList()
