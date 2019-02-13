@@ -27,7 +27,7 @@ export default new Vuex.Store({
       return client
     },
     async getRentedGames({}) {
-      const { data } = await api.getRentedGamesList()
+      const { data } = await api.getGamesList({ type: 'rented' })
       return data
     },
     async gameRevision({}, payload) {
