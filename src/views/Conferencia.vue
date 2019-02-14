@@ -40,28 +40,25 @@ export default {
     submitLoader: false
   }),
   methods: {
-    ...mapActions(['setFullGamesList', 'gameRevision']),
+    ...mapActions(['setFullGamesList', 'sendToSheets']),
     submit() {
       this.submitLoader = true
-      const payload = {
+      const items = {
         cpf: this.cpf,
         selectedGames: this.selectedGames,
         adminPassword: this.adminPassword,
         damage: this.damage,
+        password: this.adminPassword,
         damageDescription: this.damageDescription
       }
-      this.gameRevision(payload).then(response => {
+      this.sendToSheets({ actionName: 'reivision', items }).then(response => {
         this.submitLoader = false
         console.log(response);
       }).catch(error => {
         this.submitLoader = false
-        if (error.message === '404') {
-          this.$confirm({ message: 'Para realizar conferências, você deve fazer parte do staff. Seu CPF não está cadastrado como staff.', cancelText: 'Tentar novamente', confirmText: 'Menu incial' }).then(() => {
-            this.$router.push('/')
-          })
-        } else {
-          this.$snackbar({ message: 'Ocorreu um erro, tente novamente', snackbarColor: 'error' })
-        }
+        this.$snackbar({ message: error.message, snackbarColor: 'error', btnText: 'Menu incial' }).catch(() => {
+          this.$router.push('/')
+        })
       })
     }
   },
