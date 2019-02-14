@@ -46,6 +46,17 @@ export default new Vuex.Store({
     async getRentedGames({}) {
       const { data } = await sheetsApi.getRentedGamesList()
       return data
+    },
+    async sendToSheets({}, payload) {
+        const { message } = await sheetsApi[payload.actionName](payload.items)
+
+        if (message === 'sucesso') return message
+        else throw Error(message)
+    },
+    async registerClient({}, payload) {
+      if (sheetsApi.checkPassword(payload.adminPassword)) throw Error('Senha incorreta, tente novamente')
+      const { message } = await sheetsApi.createClient(payload.client)
+      return message
     }
   }
 })
