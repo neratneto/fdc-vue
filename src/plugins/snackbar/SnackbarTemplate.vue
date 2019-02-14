@@ -1,7 +1,7 @@
 <template>
 <v-snackbar class="snackbar" :color="snackbarColor" left v-model="open">
   <span class="snackbar-text">{{ message }}</span>
-  <v-btn v-if="btnText" color="success" class="mr-2" @click.stop="clickButton()">{{ btnText }}</v-btn>
+  <v-btn v-if="btnText" color="primary" class="mr-2" @click.stop="clickButton()">{{ btnText }}</v-btn>
   <v-icon @click.stop="closeSnackbar()">close</v-icon>
 </v-snackbar>
 </template>
@@ -25,8 +25,8 @@ export default {
 
 <style lang="scss">
 .snackbar {
+    font-family: 'Oswald', sans-serif !important;
     .snackbar-text {
-        font-family: 'Oswald', sans-serif !important;
         color: #FFF;
     }
 }
