@@ -47,8 +47,8 @@ export default new Vuex.Store({
       const { data } = await sheetsApi.getRentedGamesList()
       return data
     },
-    async sendToSheets({}, payload) {
-        const { message } = await sheetsApi[payload.actionName](payload.items)
+    async logRevision({}, payload) {
+        const { message } = await sheetsApi.revision(payload)
 
         if (message === 'sucesso') return message
         else throw Error(message)
@@ -57,6 +57,10 @@ export default new Vuex.Store({
       if (sheetsApi.checkPassword(payload.adminPassword)) throw Error('Senha incorreta, tente novamente')
       const { message } = await sheetsApi.createClient(payload.client)
       return message
+    },
+    async getAdmin({}, adminId) {
+      const { data } = await sheetsApi.adminCheck(adminId)
+      return data
     }
   }
 })

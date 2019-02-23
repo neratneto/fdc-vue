@@ -12,10 +12,14 @@
 
 <script>
 import Settings from '@/components/Settings.vue'
+import { loadGapi } from './api/sheetsApi'
 
 export default {
   components: {
     Settings
+  },
+  created() {
+    loadGapi()
   }
 }
 </script>

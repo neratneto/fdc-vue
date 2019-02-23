@@ -36,11 +36,9 @@ export default {
   },
   methods: {
     submit() {
-      window.localStorage.setItem('fora_da_caixa', JSON.stringify({
-        apiKey: this.apiKey,
-        clientId: this.clientId,
-        spreadsheetId: this.spreadsheetId
-      }))
+      window.localStorage.setItem('apiKey', this.apiKey)
+      window.localStorage.setItem('clientId', this.clientId)
+      window.localStorage.setItem('spreadsheetId', this.spreadsheetId)
       this.dialog = false
     }
   }

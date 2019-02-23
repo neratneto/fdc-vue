@@ -3,7 +3,7 @@
   <p class="page-title">{{ title }}</p>
   <v-layout class="py-2" wrap>
     <v-flex>
-      <cpf-jogo-senha :cpf.sync="cpf" :selectedGames.sync="selectedGames" :adminPassword.sync="adminPassword" />
+      <cpf-jogo-senha :cpf.sync="cpf" :selectedGames.sync="selectedGames" :adminPassword.sync="adminPassword" :id-function="fetchClientInfo" />
       <v-btn color="secondary" :loading="submitLoader" @click="submit">Enviar!</v-btn>
     </v-flex>
     <v-flex>
@@ -34,13 +34,6 @@ export default {
   }),
   props: {
     title: String
-  },
-  watch: {
-    cpf(value) {
-      if (value && value.length === 14) {
-        this.fetchClientInfo()
-      }
-    }
   },
   methods: {
     ...mapActions(['getClientInfo']),

@@ -1,8 +1,8 @@
 <template>
 <v-layout align-start justify-left fill-height column>
-  <v-text-field label="CPF" v-model="scopedCpf" solo mask="###.###.###-##" return-masked-value />
-  <v-autocomplete label="Jogos" :items="possibleGames" v-model="scopedSelectedGames" solo />
-  <v-text-field label="Senha do administrador" v-model="scopedAdminPassword" solo />
+  <v-text-field label="CPF" v-model="scopedCpf" solo mask="###.###.###-##" @input="validateId" return-masked-value required />
+  <v-autocomplete label="Jogos" :items="possibleGames" v-model="scopedSelectedGames" solo required />
+  <v-text-field label="Senha do administrador" v-model="scopedAdminPassword" solo :append-icon="visibility ? 'visibility' : 'visibility_off'" @click:append="() => (visibility = !visibility)" :type="visibility ? 'password' : 'text'" required />
 </v-layout>
 </template>
 
@@ -10,10 +10,14 @@
 import { mapState } from 'vuex'
 
 export default {
+  data: () => ({
+    visibility: true
+  }),
   props: {
     cpf: String,
     selectedGames: [Array, String],
-    adminPassword: String
+    adminPassword: String,
+    idFunction: Function
   },
   computed: {
     ...mapState({
@@ -41,6 +45,13 @@ export default {
       },
       set(value) {
         this.$emit('update:adminPassword', value)
+      }
+    }
+  },
+  methods: {
+    validateId(value) {
+      if (value && value.length === 14) {
+        this.idFunction()
       }
     }
   }

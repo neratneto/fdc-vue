@@ -3,7 +3,7 @@
   <p class="page-title">Conferência </p>
   <v-layout class="py-2" wrap>
     <v-flex xs6>
-      <cpf-jogo-senha :cpf.sync="cpf" :selectedGames.sync="selectedGames" :adminPassword.sync="adminPassword" />
+      <cpf-jogo-senha :cpf.sync="cpf" :selectedGames.sync="selectedGames" :adminPassword.sync="adminPassword" :id-function="checkAdmin" />
     </v-flex>
     <v-flex xs6>
       <v-layout column align-start>
@@ -37,10 +37,11 @@ export default {
     adminPassword: null,
     damage: null,
     damageDescription: null,
-    submitLoader: false
+    submitLoader: false,
+    adminName: null
   }),
   methods: {
-    ...mapActions(['setFullGamesList', 'sendToSheets']),
+    ...mapActions(['setFullGamesList', 'sendToSheets', 'getAdmin']),
     submit() {
       this.submitLoader = true
       const items = {
@@ -59,6 +60,19 @@ export default {
         this.$snackbar({ message: error.message, snackbarColor: 'error', btnText: 'Menu incial' }).catch(() => {
           this.$router.push('/')
         })
+      })
+    },
+    checkAdmin() {
+      this.getAdmin(this.cpf).then(data => {
+        if (data.message === 'success') {
+          this.adminName = data.name
+        } else if (data.message === 'not found') {
+          this.$confirm({ message: 'Administrador não encontrado, você faz parte do staff?' }).then(() => {
+            this.cpf = null
+          }).catch(() => {
+            this.$router.push('/')
+          })
+        }
       })
     }
   },
