@@ -3,8 +3,8 @@
   <p class="page-title">{{ title }}</p>
   <v-layout class="py-2" wrap>
     <v-flex>
-      <cpf-jogo-senha :cpf.sync="cpf" :selectedGames.sync="selectedGames" :adminPassword.sync="adminPassword" :id-function="fetchClientInfo" />
-      <v-btn color="secondary" :loading="submitLoader" @click="submit">Enviar!</v-btn>
+      <cpf-jogo-senha :cpf.sync="cpf" :selectedGames.sync="selectedGames" :password-valid.sync="passwordValid" :id-function="fetchClientInfo" />
+      <v-btn color="secondary" :disabled="passwordValid" :loading="submitLoader" @click="submit">Enviar!</v-btn>
     </v-flex>
     <v-flex>
       <v-card class="pa-3" v-if="clientInfo && !clientInfoLoader">
@@ -29,8 +29,8 @@ export default {
     submitLoader: false,
     cpf: null,
     selectedGames: null,
-    adminPassword: null,
-    clientInfoLoader: false
+    clientInfoLoader: false,
+    passwordValid: false
   }),
   props: {
     title: String

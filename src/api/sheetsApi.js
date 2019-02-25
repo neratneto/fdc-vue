@@ -1,3 +1,6 @@
+import Moment from 'moment'
+import Snackbar from '@/plugins/snackbar/snackbar.js'
+
 const gapiSettings = {
   apiKey: window.localStorage.getItem('apiKey'),
   client_id: window.localStorage.getItem('clientId'),
@@ -27,26 +30,29 @@ const getRange = (worksheet, range, dimension) => {
     gapi.client.sheets.spreadsheets.values.get({spreadsheetId: window.localStorage.getItem('spreadsheetId'), range: `${worksheet}!${range}`, majorDimension: dimension}).then(response => {
       resolve(response.result.values)
     })
-  })
-}
-
-const updateRangeBulk = (bulkData) => {
-  return new Promise((resolve, reject) => {
-    gapi.client.sheets.spreadsheets.values.batchUpdate({
-      spreadsheetId: window.localStorage.getItem('spreadsheetId'),
-      resource: {
-        data: bulkData
-      }
-    }).then(response => {
-      resolve(response.totalUpdatedCells)
+  }).catch(error => {
+    // Temporary solution
+    return new Promise(function(resolve, reject) {
+      window.setTimeout(() => {
+        console.warn('GAPI connection has failed, retrying')
+        getRange(worksheet, range, dimension).then(response => {
+          resolve(response)
+        })
+      }, 1000)
     })
   })
 }
 
-const queryString = (worksheet, range, dimension) => {
+const bulkUpdate = (bulkData) => {
   return new Promise((resolve, reject) => {
-    gapi.client.sheets.spreadsheets.values.get({spreadsheetId: window.localStorage.getItem('spreadsheetId'), range: `${worksheet}!${range}`, majorDimension: dimension}).then(response => {
-      resolve(response.result.values)
+    gapi.client.sheets.spreadsheets.values.batchUpdate({
+      spreadsheetId: window.localStorage.getItem('spreadsheetId'),
+      resource: {
+        data: bulkData,
+        valueInputOption: 'RAW'
+      }
+    }).then(response => {
+      resolve(response.totalUpdatedCells)
     })
   })
 }
@@ -68,6 +74,24 @@ const appendRow = (worksheet, data, dimension) => {
 }
 
 /* INTERNAL FUNCTIONS */
+
+const gamesReference = (games) => {
+  return new Promise((resolve, reject) => {
+    getRange('log', 'A2:E', 'ROWS').then(sheetsResponse => {
+      const referencedGamesArray = sheetsResponse.map((element, index) => {
+        return {game: element[0], row: element, rowIndex: index + 2}
+      })
+      const recievedGamesReference = []
+      for (let game of games) {
+        const foundGame = referencedGamesArray.find(object => object.game === game)
+        if (foundGame) {
+          recievedGamesReference.push(foundGame)
+        }
+      }
+      resolve(recievedGamesReference)
+    })
+  })
+}
 
 export const getGamesList = () => {
   return new Promise((resolve, reject) => {
@@ -118,14 +142,32 @@ export const getClientInfoById = (id) => {
 
 export const checkPassword = password => password !== 'unicornio'
 
-export const reivision = (items) => {
+export const revision = (items) => {
   return new Promise((resolve, reject) => {
-    resolve({message: 'Suesso!'})
-    resolve({message: 'Não foi possível acessar o servidor, verifique a conexão'})
+    const currentMoment = Moment()
 
-    getRange('log', 'A2:E', 'ROWS').then(sheetsResponse => {
-      const gamesArray = sheetsResponse.filter(element => element[1] && !element[3] && !element[4]).map(element => element[0])
-      resolve({data: gamesArray})
+    gamesReference(items.selectedGames).then(referencedGamesArray => {
+      const bulkData = []
+      for (let gameObject of referencedGamesArray) {
+        bulkData.push({
+          range: `log!B${gameObject.rowIndex}:E${gameObject.rowIndex}`,
+          values: [
+            [`${items.adminName} (${currentMoment.format('DD/MM/YYYY HH:mm')})`, '', '', '']
+          ],
+          majorDimension: 'ROWS'
+        })
+      }
+
+      bulkUpdate(bulkData).then(amount => {
+        for (let currentGame of referencedGamesArray) {
+          insertHistory({action: 'Conferência', game: currentGame.game, client: items.adminName, date: currentMoment, extraData: `Danos: ${items.damage ? items.damageDescription : 'Nenhum'}`})
+
+          if (items.damage) {
+            insertDamage([...currentGame.row, items.damageDescription])
+          }
+        }
+        resolve({ message: 'success', amount })
+      })
     })
   })
 }
@@ -156,16 +198,41 @@ export const adminCheck = (adminId) => {
     getRange('admins', 'A2:B', 'ROWS').then(sheetsResponse => {
       for (let admin of sheetsResponse) {
         if (admin[0] === adminId) {
-          console.log('encontrou');
-          resolve({ data: {
-            id: admin[0],
-            name: admin[1],
-            message: 'success'
-          }
-        })
+          resolve({
+            data: {
+              id: admin[0],
+              name: admin[1],
+              message: 'success'
+            }
+          })
         }
       }
-      resolve({ data: { message: 'not found' }})
+      resolve({
+        data: {
+          message: 'not found'
+        }
+      })
+    })
+  })
+}
+
+const insertHistory = ({action, game, client, date, extraData}) => {
+  return new Promise(function(resolve, reject) {
+    const historyLog = [action, game, client, date, extraData]
+    appendRow('history', historyLog, 'ROWS').then(sheetsResponse => {
+      if (sheetsResponse) {
+        resolve({message: 'success'})
+      }
+    })
+  })
+}
+
+const insertDamage = (row) => {
+  return new Promise(function(resolve, reject) {
+    appendRow('damage', row, 'ROWS').then(sheetsResponse => {
+      if (sheetsResponse) {
+        resolve({message: 'success'})
+      }
     })
   })
 }

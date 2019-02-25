@@ -3,7 +3,7 @@
   <p class="page-title">Conferência </p>
   <v-layout class="py-2" wrap>
     <v-flex xs6>
-      <cpf-jogo-senha :cpf.sync="cpf" :selectedGames.sync="selectedGames" :adminPassword.sync="adminPassword" :id-function="checkAdmin" />
+      <cpf-jogo-senha :cpf.sync="cpf" :selectedGames.sync="selectedGames" :password-valid.sync="passwordValid" :id-function="checkAdmin" />
     </v-flex>
     <v-flex xs6>
       <v-layout column align-start>
@@ -17,7 +17,7 @@
       </v-layout>
     </v-flex>
     <v-flex xs12>
-      <v-btn color="secondary" :loading="submitLoader" @click="submit">Enviar!</v-btn>
+      <v-btn color="secondary" :disabled="passwordValid" :loading="submitLoader" @click="submit">Enviar!</v-btn>
     </v-flex>
   </v-layout>
 </v-container>
@@ -34,25 +34,23 @@ export default {
   data: () => ({
     cpf: null,
     selectedGames: null,
-    adminPassword: null,
     damage: null,
     damageDescription: null,
     submitLoader: false,
-    adminName: null
+    adminName: null,
+    passwordValid: false
   }),
   methods: {
-    ...mapActions(['setFullGamesList', 'sendToSheets', 'getAdmin']),
+    ...mapActions(['setFullGamesList', 'logRevision', 'getAdmin']),
     submit() {
       this.submitLoader = true
       const items = {
-        cpf: this.cpf,
+        adminName: this.adminName,
         selectedGames: this.selectedGames,
-        adminPassword: this.adminPassword,
         damage: this.damage,
-        password: this.adminPassword,
         damageDescription: this.damageDescription
       }
-      this.sendToSheets({ actionName: 'reivision', items }).then(response => {
+      this.logRevision(items).then(response => {
         this.submitLoader = false
         console.log(response);
       }).catch(error => {
