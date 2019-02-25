@@ -47,6 +47,10 @@ export default new Vuex.Store({
       const { data } = await sheetsApi.getRentedGamesList()
       return data
     },
+    async findLateGames({}, gamesArray) {
+      const { data } = await sheetsApi.findLateGamesList(gamesArray)
+      return data
+    },
     async logRevision({}, payload) {
       const response = await sheetsApi.revision(payload)
 
@@ -54,13 +58,13 @@ export default new Vuex.Store({
       else throw Error(response.message)
     },
     async logCheckOut({}, payload) {
-      const response = await sheetsApi.revision(payload)
+      const response = await sheetsApi.checkOut(payload)
 
       if (response.message === 'sucess') return message
       else throw Error(response.message)
     },
     async logCheckIn({}, payload) {
-      const response = await sheetsApi.revision(payload)
+      const response = await sheetsApi.checkIn(payload)
 
       if (response.message === 'sucess') return message
       else throw Error(response.message)

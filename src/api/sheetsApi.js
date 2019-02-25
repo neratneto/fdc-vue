@@ -1,5 +1,6 @@
 import Moment from 'moment'
-import Snackbar from '@/plugins/snackbar/snackbar.js'
+
+/* SHEETS API HANDLERS */
 
 const gapiSettings = {
   apiKey: window.localStorage.getItem('apiKey'),
@@ -7,7 +8,6 @@ const gapiSettings = {
   scope: 'https://www.googleapis.com/auth/spreadsheets',
   discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4']
 }
-/* SHEETS API HANDLERS */
 
 export const loadGapi = () => {
   return new Promise((resolve, reject) => {
@@ -75,11 +75,36 @@ const appendRow = (worksheet, data, dimension) => {
 
 /* INTERNAL FUNCTIONS */
 
+const insertHistory = ({action, game, client, date, extraData}) => {
+  return new Promise(function(resolve, reject) {
+    const historyLog = [action, game, client, date, extraData]
+    appendRow('history', historyLog, 'ROWS').then(sheetsResponse => {
+      if (sheetsResponse) {
+        resolve({message: 'success'})
+      }
+    })
+  })
+}
+
+const insertDamage = (row) => {
+  return new Promise(function(resolve, reject) {
+    appendRow('damage', row, 'ROWS').then(sheetsResponse => {
+      if (sheetsResponse) {
+        resolve({message: 'success'})
+      }
+    })
+  })
+}
+
 const gamesReference = (games) => {
   return new Promise((resolve, reject) => {
     getRange('log', 'A2:E', 'ROWS').then(sheetsResponse => {
       const referencedGamesArray = sheetsResponse.map((element, index) => {
-        return {game: element[0], row: element, rowIndex: index + 2}
+        return {
+          game: element[0],
+          row: element,
+          rowIndex: index + 2
+        }
       })
       const recievedGamesReference = []
       for (let game of games) {
@@ -92,6 +117,10 @@ const gamesReference = (games) => {
     })
   })
 }
+
+// EXPORTED FUNCTIONS
+
+export const checkPassword = password => password !== 'unicornio'
 
 export const getGamesList = () => {
   return new Promise((resolve, reject) => {
@@ -123,24 +152,43 @@ export const getAvaliableGamesList = () => {
   })
 }
 
+export const findLateGamesList = (gamesArray) => {
+  return new Promise(function(resolve, reject) {
+    gamesReference(gamesArray).then(referencedGamesArray => {
+      const lateGames = []
+
+      for (let gameObject of referencedGamesArray) {
+        const checkInDate = gameObject.row[3].split(' ')[1]
+        const checkInDateMoment = Moment(checkInDate, '(DD/MM/YYYY HH:mm)')
+        const daysLate = Moment().diff(checkInDateMoment, 'days')
+console.log(checkInDate, checkInDateMoment, daysLate);
+
+        if (daysLate > 7) {
+          lateGames.push({game: gameObject.game, days: daysLate})
+        }
+      }
+
+      resolve({data: lateGames})
+    })
+  })
+}
+
 export const getClientInfoById = (id) => {
   return new Promise((resolve, reject) => {
     getRange('registers', 'A2:G', 'ROWS').then(sheetsResponse => {
       const clientArray = sheetsResponse.find(array => array[0] === id)
       const clientObject = {
-        name: clientArray[0],
-        address: clientArray[1],
-        tel: clientArray[2],
-        cel: clientArray[3],
-        email: clientArray[4],
-        social: clientArray[5]
+        name: clientArray[1],
+        address: clientArray[2],
+        tel: clientArray[3],
+        cel: clientArray[4],
+        email: clientArray[5],
+        social: clientArray[6]
       }
       resolve({data: clientObject})
     })
   })
 }
-
-export const checkPassword = password => password !== 'unicornio'
 
 export const revision = (items) => {
   return new Promise((resolve, reject) => {
@@ -160,13 +208,24 @@ export const revision = (items) => {
 
       bulkUpdate(bulkData).then(amount => {
         for (let currentGame of referencedGamesArray) {
-          insertHistory({action: 'Conferência', game: currentGame.game, client: items.adminName, date: currentMoment, extraData: `Danos: ${items.damage ? items.damageDescription : 'Nenhum'}`})
+          insertHistory({
+            action: 'Conferência',
+            game: currentGame.game,
+            client: items.adminName,
+            date: currentMoment,
+            extraData: `Danos: ${items.damage
+              ? items.damageDescription
+              : 'Nenhum'}`
+          })
 
           if (items.damage) {
-            insertDamage([...currentGame.row, items.damageDescription])
+            insertDamage([
+              ...currentGame.row,
+              items.damageDescription
+            ])
           }
         }
-        resolve({ message: 'success', amount })
+        resolve({message: 'success', amount})
       })
     })
   })
@@ -191,9 +250,17 @@ export const checkOut = (items) => {
       bulkUpdate(bulkData).then(amount => {
         for (let currentGame of referencedGamesArray) {
           const foundLateGame = items.lateGames.find(object => object.game === currentGame)
-          insertHistory({action: 'Devolução', game: currentGame.game, client: items.cpf, date: currentMoment, extraData: foundLateGame ? `Atrasado: ${foundLateGame.days}` : 'Pontual'})
+          insertHistory({
+            action: 'Devolução',
+            game: currentGame.game,
+            client: items.cpf,
+            date: currentMoment,
+            extraData: foundLateGame
+              ? `Atrasado: ${foundLateGame.days}`
+              : 'Pontual'
+          })
         }
-        resolve({ message: 'success', amount })
+        resolve({message: 'success', amount})
       })
     })
   })
@@ -218,9 +285,9 @@ export const checkIn = (items) => {
       bulkUpdate(bulkData).then(amount => {
         for (let currentGame of referencedGamesArray) {
           const gamePrice = currentGame.row[5] || 'não especificado'
-          insertHistory({action: 'Locação', game: currentGame.game, client: items.adminName, date: currentMoment, extraData: `Preço: ${gamePrice}`})
+          insertHistory({action: 'Locação', game: currentGame.game, client: items.cpf, date: currentMoment, extraData: `Preço: ${gamePrice}`})
         }
-        resolve({ message: 'success', amount })
+        resolve({message: 'success', amount})
       })
     })
   })
@@ -266,27 +333,6 @@ export const adminCheck = (adminId) => {
           message: 'not found'
         }
       })
-    })
-  })
-}
-
-const insertHistory = ({action, game, client, date, extraData}) => {
-  return new Promise(function(resolve, reject) {
-    const historyLog = [action, game, client, date, extraData]
-    appendRow('history', historyLog, 'ROWS').then(sheetsResponse => {
-      if (sheetsResponse) {
-        resolve({message: 'success'})
-      }
-    })
-  })
-}
-
-const insertDamage = (row) => {
-  return new Promise(function(resolve, reject) {
-    appendRow('damage', row, 'ROWS').then(sheetsResponse => {
-      if (sheetsResponse) {
-        resolve({message: 'success'})
-      }
     })
   })
 }

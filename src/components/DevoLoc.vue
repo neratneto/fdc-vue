@@ -1,6 +1,6 @@
 <template>
 <v-container>
-  <p class="page-title">{{ title }}</p>
+  <p class="page-title">{{ capitalize(actionType) }}</p>
   <v-layout class="py-2" wrap>
     <v-flex>
       <cpf-jogo-senha :cpf.sync="cpf" :selectedGames.sync="selectedGames" :password-valid.sync="passwordValid" :id-function="fetchClientInfo" />
@@ -17,6 +17,7 @@
 </template>
 
 <script>
+import _ from 'lodash'
 import CpfJogoSenha from './CpfJogoSenha.vue'
 import { mapActions } from 'vuex'
 
@@ -30,31 +31,49 @@ export default {
     cpf: null,
     selectedGames: null,
     clientInfoLoader: false,
-    passwordValid: false
+    passwordValid: false,
+    capitalize: _.capitalize
   }),
   props: {
-    title: String
+    actionType: String
   },
   methods: {
-    // TODO add games load to this component and prop dictates over devo or loc
-    ...mapActions(['getClientInfo', 'logCheckOut', 'logCheckIn']),
+    ...mapActions(['getClientInfo', 'logCheckOut', 'logCheckIn', 'setAvaliableGamesList', 'setRentedGamesList', 'findLateGames']),
     checkOut() {
-      // TODO items and late check
-      this.logCheckOut(items).then(response => {
-        this.submitLoader = false
-        console.log(response);
-      }).catch(error => {
-        this.submitLoader = false
-        this.$snackbar({ message: error.message, snackbarColor: 'error', btnText: 'Menu incial' }).catch(() => {
+      this.submitLoader = true
+      this.findLateGames(this.selectedGames).then(lateGames => {
+        if (lateGames !== []) {
+          // TODO confirm late games
+        }
+        const items = {
+          cpf: this.cpf,
+          selectedGames: this.selectedGames,
+          lateGames: lateGames
+        }
+
+        this.logCheckOut(items).then(response => {
+          this.submitLoader = false
+          console.log(response)
           this.$router.push('/')
+        }).catch(error => {
+          this.submitLoader = false
+          this.$snackbar({ message: error.message, snackbarColor: 'error', btnText: 'Menu incial' }).catch(() => {
+            this.$router.push('/')
+          })
         })
       })
     },
     checkIn() {
-      // TODO items
+      this.submitLoader = true
+      const items = {
+        cpf: this.cpf,
+        selectedGames: this.selectedGames
+      }
+
       this.logCheckIn(items).then(response => {
         this.submitLoader = false
-        console.log(response);
+        console.log(response)
+        this.$router.push('/')
       }).catch(error => {
         this.submitLoader = false
         this.$snackbar({ message: error.message, snackbarColor: 'error', btnText: 'Menu incial' }).catch(() => {
@@ -92,10 +111,19 @@ export default {
         })
       })
     },
+    executeTypeFunction(locacaoFunction, devolucaoFunction) {
+      if (this.actionType === 'locação') {
+        locacaoFunction()
+      } else if (this.actionType === 'devolução') {
+        devolucaoFunction()
+      }
+    },
     submit() {
-      this.submitLoader = true
-      this.$router.push('/')
+      this.executeTypeFunction(this.checkIn, this.checkOut)
     }
+  },
+  mounted() {
+    this.executeTypeFunction(this.setAvaliableGamesList, this.setRentedGamesList)
   }
 }
 </script>
