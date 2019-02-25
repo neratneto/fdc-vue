@@ -36,7 +36,32 @@ export default {
     title: String
   },
   methods: {
-    ...mapActions(['getClientInfo']),
+    // TODO add games load to this component and prop dictates over devo or loc
+    ...mapActions(['getClientInfo', 'logCheckOut', 'logCheckIn']),
+    checkOut() {
+      // TODO items and late check
+      this.logCheckOut(items).then(response => {
+        this.submitLoader = false
+        console.log(response);
+      }).catch(error => {
+        this.submitLoader = false
+        this.$snackbar({ message: error.message, snackbarColor: 'error', btnText: 'Menu incial' }).catch(() => {
+          this.$router.push('/')
+        })
+      })
+    },
+    checkIn() {
+      // TODO items
+      this.logCheckIn(items).then(response => {
+        this.submitLoader = false
+        console.log(response);
+      }).catch(error => {
+        this.submitLoader = false
+        this.$snackbar({ message: error.message, snackbarColor: 'error', btnText: 'Menu incial' }).catch(() => {
+          this.$router.push('/')
+        })
+      })
+    },
     fetchClientInfo() {
       this.clientInfoLoader = true
       this.getClientInfo(this.cpf).then(client => {

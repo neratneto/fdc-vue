@@ -172,6 +172,60 @@ export const revision = (items) => {
   })
 }
 
+export const checkOut = (items) => {
+  return new Promise((resolve, reject) => {
+    const currentMoment = Moment()
+
+    gamesReference(items.selectedGames).then(referencedGamesArray => {
+      const bulkData = []
+      for (let gameObject of referencedGamesArray) {
+        bulkData.push({
+          range: `log!E${gameObject.rowIndex}`,
+          values: [
+            [`${items.cpf} (${currentMoment.format('DD/MM/YYYY HH:mm')})`]
+          ],
+          majorDimension: 'ROWS'
+        })
+      }
+
+      bulkUpdate(bulkData).then(amount => {
+        for (let currentGame of referencedGamesArray) {
+          const foundLateGame = items.lateGames.find(object => object.game === currentGame)
+          insertHistory({action: 'Devolução', game: currentGame.game, client: items.cpf, date: currentMoment, extraData: foundLateGame ? `Atrasado: ${foundLateGame.days}` : 'Pontual'})
+        }
+        resolve({ message: 'success', amount })
+      })
+    })
+  })
+}
+
+export const checkIn = (items) => {
+  return new Promise((resolve, reject) => {
+    const currentMoment = Moment()
+
+    gamesReference(items.selectedGames).then(referencedGamesArray => {
+      const bulkData = []
+      for (let gameObject of referencedGamesArray) {
+        bulkData.push({
+          range: `log!D${gameObject.rowIndex}:E${gameObject.rowIndex}`,
+          values: [
+            [`${items.cpf} (${currentMoment.format('DD/MM/YYYY HH:mm')})`, '']
+          ],
+          majorDimension: 'ROWS'
+        })
+      }
+
+      bulkUpdate(bulkData).then(amount => {
+        for (let currentGame of referencedGamesArray) {
+          const gamePrice = currentGame.row[5] || 'não especificado'
+          insertHistory({action: 'Locação', game: currentGame.game, client: items.adminName, date: currentMoment, extraData: `Preço: ${gamePrice}`})
+        }
+        resolve({ message: 'success', amount })
+      })
+    })
+  })
+}
+
 export const createClient = (clientObject) => {
   return new Promise((resolve, reject) => {
     const clientRow = [

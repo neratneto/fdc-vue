@@ -53,6 +53,18 @@ export default new Vuex.Store({
       if (response.message === 'sucess') return message
       else throw Error(response.message)
     },
+    async logCheckOut({}, payload) {
+      const response = await sheetsApi.revision(payload)
+
+      if (response.message === 'sucess') return message
+      else throw Error(response.message)
+    },
+    async logCheckIn({}, payload) {
+      const response = await sheetsApi.revision(payload)
+
+      if (response.message === 'sucess') return message
+      else throw Error(response.message)
+    },
     async registerClient({}, payload) {
       if (sheetsApi.checkPassword(payload.adminPassword)) throw Error('Senha incorreta, tente novamente')
       const { message } = await sheetsApi.createClient(payload.client)
