@@ -133,8 +133,8 @@ export const getGamesList = () => {
 
 export const getRentedGamesList = () => {
   return new Promise((resolve, reject) => {
-    getRange('log', 'A2:D', 'ROWS').then(sheetsResponse => {
-      const gamesArray = sheetsResponse.filter(element => element[3]).map(element => {
+    getRange('log', 'A2:E', 'ROWS').then(sheetsResponse => {
+      const gamesArray = sheetsResponse.filter(element => element[3] && !element[4]).map(element => {
         const rentInfo = element[3].split(' ')
         return {game: element[0], client_id: rentInfo[0], date: `${rentInfo[1]} ${rentInfo[2]}`}
       })
@@ -158,12 +158,13 @@ export const findLateGamesList = (gamesArray) => {
       const lateGames = []
 
       for (let gameObject of referencedGamesArray) {
-        const checkInDate = gameObject.row[3].split(' ')[1]
-        const checkInDateMoment = Moment(checkInDate, '(DD/MM/YYYY HH:mm)')
-        const daysLate = Moment().diff(checkInDateMoment, 'days')
-console.log(checkInDate, checkInDateMoment, daysLate);
+        let checkInDate = gameObject.row[3].split(' ')
+        checkInDate.shift()
+        checkInDate = checkInDate.join(' ')
+        checkInDate = checkInDate.includes('(') ? Moment(checkInDate, '(DD/MM/YYYY HH:mm)') : Moment(checkInDate)
+        const daysLate = Moment().diff(checkInDate, 'days') - 7
 
-        if (daysLate > 7) {
+        if (daysLate > 0) {
           lateGames.push({game: gameObject.game, days: daysLate})
         }
       }
@@ -249,7 +250,7 @@ export const checkOut = (items) => {
 
       bulkUpdate(bulkData).then(amount => {
         for (let currentGame of referencedGamesArray) {
-          const foundLateGame = items.lateGames.find(object => object.game === currentGame)
+          const foundLateGame = items.lateGames.find(object => object.game && object.game === currentGame)
           insertHistory({
             action: 'Devolução',
             game: currentGame.game,

@@ -54,19 +54,19 @@ export default new Vuex.Store({
     async logRevision({}, payload) {
       const response = await sheetsApi.revision(payload)
 
-      if (response.message === 'sucess') return message
+      if (response.message === 'success') return message
       else throw Error(response.message)
     },
     async logCheckOut({}, payload) {
       const response = await sheetsApi.checkOut(payload)
 
-      if (response.message === 'sucess') return message
+      if (response.message === 'success') return message
       else throw Error(response.message)
     },
     async logCheckIn({}, payload) {
       const response = await sheetsApi.checkIn(payload)
 
-      if (response.message === 'sucess') return message
+      if (response.message === 'success') return message
       else throw Error(response.message)
     },
     async registerClient({}, payload) {

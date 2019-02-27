@@ -52,10 +52,12 @@ export default {
       }
       this.logRevision(items).then(response => {
         this.submitLoader = false
-        console.log(response);
+        this.$snackbar({ message: 'Sucesso!', snackbarColor: 'success', btnText: 'Menu incial' }).catch(() => {
+          this.$router.push('/')
+        })
       }).catch(error => {
         this.submitLoader = false
-        this.$snackbar({ message: error.message, snackbarColor: 'error', btnText: 'Menu incial' }).catch(() => {
+        this.$snackbar({ message: error, snackbarColor: 'error', btnText: 'Menu incial' }).catch(() => {
           this.$router.push('/')
         })
       })

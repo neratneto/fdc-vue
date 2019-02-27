@@ -42,24 +42,36 @@ export default {
     checkOut() {
       this.submitLoader = true
       this.findLateGames(this.selectedGames).then(lateGames => {
-        if (lateGames !== []) {
-          // TODO confirm late games
-        }
-        const items = {
-          cpf: this.cpf,
-          selectedGames: this.selectedGames,
-          lateGames: lateGames
-        }
+        if (lateGames !== undefined && lateGames.length != 0) {
+          const lateGamesItems = lateGames.map(element => `${element.game} - ${element.days} dias`)
 
-        this.logCheckOut(items).then(response => {
-          this.submitLoader = false
-          console.log(response)
-          this.$router.push('/')
-        }).catch(error => {
-          this.submitLoader = false
-          this.$snackbar({ message: error.message, snackbarColor: 'error', btnText: 'Menu incial' }).catch(() => {
-            this.$router.push('/')
+          this.$confirm({ message: 'Os seguintes jogos estão atrasados:', confirmText: 'Atraso pago', cancelText: 'Tentar novamente', items: lateGamesItems }).then(() => {
+            this.submitCheckOut(lateGames)
+          }).catch(() => {
+            this.submitLoader = false
+            this.selectedGames = null
           })
+        } else {
+          this.submitCheckOut(lateGames)
+        }
+      })
+    },
+    submitCheckOut(lateGames) {
+      const items = {
+        cpf: this.cpf,
+        selectedGames: this.selectedGames,
+        lateGames: lateGames
+      }
+
+      this.logCheckOut(items).then(response => {
+        this.submitLoader = false
+        this.$snackbar({ message: 'Sucesso!', snackbarColor: 'success', btnText: 'Menu incial' }).catch(() => {
+          this.$router.push('/')
+        })
+      }).catch(error => {
+        this.submitLoader = false
+        this.$snackbar({ message: error, snackbarColor: 'error', btnText: 'Menu incial' }).catch(() => {
+          this.$router.push('/')
         })
       })
     },
@@ -72,11 +84,12 @@ export default {
 
       this.logCheckIn(items).then(response => {
         this.submitLoader = false
-        console.log(response)
-        this.$router.push('/')
+        this.$snackbar({ message: 'Sucesso!', snackbarColor: 'success', btnText: 'Menu incial' }).catch(() => {
+          this.$router.push('/')
+        })
       }).catch(error => {
         this.submitLoader = false
-        this.$snackbar({ message: error.message, snackbarColor: 'error', btnText: 'Menu incial' }).catch(() => {
+        this.$snackbar({ message: error, snackbarColor: 'error', btnText: 'Menu incial' }).catch(() => {
           this.$router.push('/')
         })
       })

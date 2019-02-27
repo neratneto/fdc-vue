@@ -3,6 +3,7 @@
   <v-card>
     <v-card-text>
       <p class="confirm-text">{{ message }}</p>
+      <p v-for="item in items" :key="item">{{ item }}</p>
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>

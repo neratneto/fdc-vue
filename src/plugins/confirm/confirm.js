@@ -16,7 +16,8 @@ export default {
               confirmText: config.confirmText || 'Sim',
               cancelText: config.cancelText || 'Não',
               confirmColor: config.confirmColor || 'primary',
-              cancelColor: config.cancelColor || undefined
+              cancelColor: config.cancelColor || undefined,
+              items: config.items || []
             }
           },
           methods: {
