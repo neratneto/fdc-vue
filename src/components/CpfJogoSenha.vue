@@ -1,7 +1,7 @@
 <template>
 <v-layout align-start justify-left fill-height column>
   <v-text-field label="CPF" v-model="scopedCpf" clearable name="cpf" autocomplete="false" solo mask="###.###.###-##" @input="validateId" return-masked-value required />
-  <v-autocomplete label="Jogos" multiple chips clearable name="games" autocomplete="false" deletable-chips :items="possibleGames" v-model="scopedSelectedGames" solo required />
+  <v-autocomplete style="max-width: 480px;" label="Jogos" multiple chips clearable name="games" autocomplete="false" deletable-chips :items="possibleGames" v-model="scopedSelectedGames" solo required />
   <v-text-field label="Senha do administrador" clearable name="admin-password" autocomplete="false" v-model="adminPassword" solo :append-icon="visibility ? 'visibility' : 'visibility_off'" @click:append="() => (visibility = !visibility)" :type="visibility ? 'password' : 'text'"
     required :error="passwordError" />
 </v-layout>
