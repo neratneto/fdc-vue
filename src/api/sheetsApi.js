@@ -207,7 +207,7 @@ export const revision = (items) => {
         })
       }
 
-      bulkUpdate(bulkData).then(amount => {
+      bulkUpdate(bulkData).then(() => {
         for (let currentGame of referencedGamesArray) {
           insertHistory({
             action: 'Conferência',
@@ -226,7 +226,7 @@ export const revision = (items) => {
             ])
           }
         }
-        resolve({message: 'success', amount})
+        resolve({message: 'success'})
       })
     })
   })
@@ -248,7 +248,7 @@ export const checkOut = (items) => {
         })
       }
 
-      bulkUpdate(bulkData).then(amount => {
+      bulkUpdate(bulkData).then(() => {
         for (let currentGame of referencedGamesArray) {
           const foundLateGame = items.lateGames.find(object => object.game && object.game === currentGame)
           insertHistory({
@@ -261,7 +261,7 @@ export const checkOut = (items) => {
               : 'Pontual'
           })
         }
-        resolve({message: 'success', amount})
+        resolve({message: 'success'})
       })
     })
   })
@@ -283,12 +283,12 @@ export const checkIn = (items) => {
         })
       }
 
-      bulkUpdate(bulkData).then(amount => {
+      bulkUpdate(bulkData).then(() => {
         for (let currentGame of referencedGamesArray) {
           const gamePrice = currentGame.row[5] || 'não especificado'
           insertHistory({action: 'Locação', game: currentGame.game, client: items.cpf, date: currentMoment, extraData: `Preço: ${gamePrice}`})
         }
-        resolve({message: 'success', amount})
+        resolve({message: 'success'})
       })
     })
   })
