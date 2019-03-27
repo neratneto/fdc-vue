@@ -14,6 +14,7 @@
           <span class="body-2" slot="header">Configurações internas</span>
           <v-layout justify-center>
             <sheets-api-settings />
+            <v-btn @click="gapiSignIn" color="secondary">Login conta Google</v-btn>
           </v-layout>
         </v-expansion-panel-content>
       </v-expansion-panel>
@@ -34,6 +35,11 @@ export default {
   data: () => ({
     expansionPanel: 0,
     dialog: false
-  })
+  }),
+  methods: {
+    gapiSignIn() {
+      gapi.auth2.getAuthInstance().signIn()
+    }
+  }
 }
 </script>
