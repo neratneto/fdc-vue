@@ -135,7 +135,7 @@ export const getRentedGamesList = () => {
   return new Promise((resolve, reject) => {
     getRange('log', 'A2:E', 'ROWS').then(sheetsResponse => {
       const gamesArray = sheetsResponse.filter(element => element[3] && !element[4]).map(element => {
-        const rentInfo = element[3].split(' ')
+        const rentInfo = element[3].replace('(', '').replace(')', '').split(' ')
         return {game: element[0], client_id: rentInfo[0], date: `${rentInfo[1]} ${rentInfo[2]}`}
       })
       resolve({data: gamesArray})

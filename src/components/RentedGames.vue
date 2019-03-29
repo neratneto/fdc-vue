@@ -47,7 +47,8 @@ export default {
       })
     },
     formatDate(date) {
-      return this.$moment(date).format('DD/MM/YYYY | HH:mm')
+      const dateMoment = date.includes('/') ? this.$moment(date, 'DD/MM/YYYY HH:mm') : this.$moment(date)
+      return dateMoment.format('DD/MM/YYYY | HH:mm')
     },
     isRentLate(date) {
       const daysDifference = this.$moment().diff(this.$moment(date), 'days')

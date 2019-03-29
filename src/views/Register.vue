@@ -62,7 +62,7 @@ export default {
           cel: this.cel,
           email: this.email,
           social: this.social,
-          agreement: `Concordou com o contrato vigente no dia ${this.$moment()}`,
+          agreement: `Concordou com o contrato vigente em ${this.$moment()}`,
           indication: this.indication
         }
         this.registerClient({ adminPassword: this.adminPassword, client }).then(() => {
