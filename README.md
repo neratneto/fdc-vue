@@ -1,4 +1,8 @@
-# fdc-vue
+# Fora da caixa control panel
+
+A [Vue.js](https://vuejs.org/) control panel using [Google Sheets API](https://developers.google.com/sheets/api/) as a database. 
+UI components from [Vuetify](https://vuetifyjs.com/)
+
 
 ## Project setup
 ```
@@ -13,9 +17,4 @@ npm run serve
 ### Compiles and minifies for production
 ```
 npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
 ```
