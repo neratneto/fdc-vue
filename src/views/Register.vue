@@ -6,7 +6,7 @@
     <v-card class="pa-2" width="320px">
       <v-card-text>
         <v-layout align-start fill-height column>
-          <v-text-field label="CPF" v-model="cpf" mask="###.###.###-##" solo />
+          <v-text-field label="CPF" v-model="cpf" mask="###.###.###-##" solo return-masked-value />
           <v-text-field label="Nome completo" v-model="name" solo />
           <v-text-field label="Endereço" v-model="address" solo />
           <v-text-field label="Email" v-model="email" solo />
@@ -14,7 +14,8 @@
           <v-text-field label="Celular" v-model="cel" mask="(##) # ####-####" solo />
           <v-text-field label="Rede social" v-model="social" solo />
           <v-select label="O que te trouxe até a loja?" @input="setIndication" :items="indicationOptions" solo />
-          <v-text-field label="Senha do administrador" v-model="adminPassword" solo />
+          <v-text-field label="Senha do administrador" clearable name="admin-password" autocomplete="false" v-model="adminPassword" solo :append-icon="visibility ? 'visibility' : 'visibility_off'" @click:append="() => (visibility = !visibility)"
+            :type="visibility ? 'password' : 'text'" required :error="passwordError" />
         </v-layout>
       </v-card-text>
       <v-card-actions>
@@ -30,12 +31,14 @@
 <script>
 import Termos from '@/components/Termos.vue'
 import { mapActions } from 'vuex'
+import { checkPassword } from '@/api/sheetsApi.js'
 
 export default {
   components: {
     Termos
   },
   data: () => ({
+    visibility: true,
     cpf: null,
     name: null,
     address: null,
@@ -49,6 +52,13 @@ export default {
     submitLoader: false,
     indicationOptions: ['Facebook', 'Instagram', 'Amigos', 'Família', 'Pa-Kua', 'Eventos', 'Outros']
   }),
+  computed: {
+    passwordError() {
+      const valid = checkPassword(this.adminPassword)
+      this.$emit('update:passwordValid', valid)
+      return valid
+    }
+  },
   methods: {
     ...mapActions(['registerClient']),
     submit() {
