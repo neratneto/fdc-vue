@@ -53,6 +53,8 @@ const bulkUpdate = (bulkData) => {
       }
     }).then(response => {
       resolve(response.totalUpdatedCells)
+    }).catch(e => {
+      errorHandler(reject, e)
     })
   })
 }
@@ -69,8 +71,18 @@ const appendRow = (worksheet, data, dimension) => {
       }
     }).then(response => {
       resolve(response.result.updates.updatedRows)
+    }).catch(e => {
+      errorHandler(reject, e)
     })
   })
+}
+
+const errorHandler = (reject, error) => {
+  if (error.result.error.code === 401) {
+    reject({ ...error, message: 'Não autorizado, por favor chame alguém do staff'})
+  } else {
+    reject(error)
+  }
 }
 
 /* INTERNAL FUNCTIONS */
@@ -82,6 +94,8 @@ const insertHistory = ({action, game, client, date, extraData}) => {
       if (sheetsResponse) {
         resolve({message: 'success'})
       }
+    }).catch(e => {
+      reject(e)
     })
   })
 }
@@ -92,6 +106,8 @@ const insertDamage = (row) => {
       if (sheetsResponse) {
         resolve({message: 'success'})
       }
+    }).catch(e => {
+      reject(e)
     })
   })
 }
@@ -227,6 +243,8 @@ export const revision = (items) => {
           }
         }
         resolve({message: 'success'})
+      }).catch(e => {
+        reject(e)
       })
     })
   })
@@ -262,6 +280,8 @@ export const checkOut = (items) => {
           })
         }
         resolve({message: 'success'})
+      }).catch(e => {
+        reject(e)
       })
     })
   })
@@ -289,6 +309,8 @@ export const checkIn = (items) => {
           insertHistory({action: 'Locação', game: currentGame.game, client: items.cpf, date: currentMoment, extraData: `Preço: ${gamePrice}`})
         }
         resolve({message: 'success'})
+      }).catch(e => {
+        reject(e)
       })
     })
   })
@@ -311,6 +333,8 @@ export const createClient = (clientObject) => {
       if (sheetsResponse) {
         resolve({message: 'success'})
       }
+    }).catch(e => {
+      reject(e)
     })
   })
 }
