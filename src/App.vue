@@ -11,38 +11,38 @@
 </template>
 
 <script>
-import Settings from '@/components/Settings.vue'
-import { loadGapi } from './api/sheetsApi'
+import Settings from "@/components/Settings.vue";
+import { loadGapi } from "./api/helpers";
 
 export default {
   components: {
     Settings
   },
   created() {
-    loadGapi()
+    loadGapi();
   }
-}
+};
 </script>
 
 <style lang="scss">
 @font-face {
-    font-family: 'Recto filled';
-    src: url("./assets/Recto_Filled.ttf");
+  font-family: "Recto filled";
+  src: url("./assets/Recto_Filled.ttf");
 }
 
 .app {
-    background-color: rgb(248, 177, 51) !important;
-    /* font-family: 'Recto filled'; */
-    font-family: 'Oswald', sans-serif !important;
+  background-color: rgb(248, 177, 51) !important;
+  /* font-family: 'Recto filled'; */
+  font-family: "Oswald", sans-serif !important;
 }
 
 .page-title {
-    color: #FFF;
-    font-size: 32px;
-    font-family: 'Oswald', sans-serif !important;
+  color: #fff;
+  font-size: 32px;
+  font-family: "Oswald", sans-serif !important;
 }
 
 .azulpadrao {
-    background-color: rgb(0, 158, 226);
+  background-color: rgb(0, 158, 226);
 }
 </style>

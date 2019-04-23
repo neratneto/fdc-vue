@@ -1,96 +1,12 @@
 import Moment from 'moment'
-
-/* SHEETS API HANDLERS */
-
-const gapiSettings = {
-  apiKey: window.localStorage.getItem('apiKey'),
-  client_id: window.localStorage.getItem('clientId'),
-  scope: 'https://www.googleapis.com/auth/spreadsheets',
-  discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4']
-}
-
-export const loadGapi = () => {
-  return new Promise((resolve, reject) => {
-    gapi.load('client:auth2', () => {
-      gapi.client.init(gapiSettings).then(() => {
-        if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
-          resolve()
-        } else {
-          gapi.auth2.getAuthInstance().signIn().then(response => {
-            resolve()
-          })
-        }
-      })
-    })
-  })
-}
-
-const getRange = (worksheet, range, dimension) => {
-  return new Promise((resolve, reject) => {
-    gapi.client.sheets.spreadsheets.values.get({spreadsheetId: window.localStorage.getItem('spreadsheetId'), range: `${worksheet}!${range}`, majorDimension: dimension}).then(response => {
-      resolve(response.result.values)
-    })
-  }).catch(error => {
-    // Temporary solution
-    return new Promise(function(resolve, reject) {
-      window.setTimeout(() => {
-        console.warn('GAPI connection has failed, retrying')
-        getRange(worksheet, range, dimension).then(response => {
-          resolve(response)
-        })
-      }, 1000)
-    })
-  })
-}
-
-const bulkUpdate = (bulkData) => {
-  return new Promise((resolve, reject) => {
-    gapi.client.sheets.spreadsheets.values.batchUpdate({
-      spreadsheetId: window.localStorage.getItem('spreadsheetId'),
-      resource: {
-        data: bulkData,
-        valueInputOption: 'RAW'
-      }
-    }).then(response => {
-      resolve(response.totalUpdatedCells)
-    }).catch(e => {
-      errorHandler(reject, e)
-    })
-  })
-}
-
-const appendRow = (worksheet, data, dimension) => {
-  return new Promise((resolve, reject) => {
-    gapi.client.sheets.spreadsheets.values.append({
-      spreadsheetId: window.localStorage.getItem('spreadsheetId'),
-      range: worksheet,
-      valueInputOption: 'RAW',
-      resource: {
-        values: [data],
-        majorDimension: dimension
-      }
-    }).then(response => {
-      resolve(response.result.updates.updatedRows)
-    }).catch(e => {
-      errorHandler(reject, e)
-    })
-  })
-}
-
-const errorHandler = (reject, error) => {
-  if (error.result.error.code === 401) {
-    reject({ ...error, message: 'Não autorizado, por favor chame alguém do staff'})
-  } else {
-    reject(error)
-  }
-}
+import * as helpers from './helpers'
 
 /* INTERNAL FUNCTIONS */
 
 const insertHistory = ({action, game, client, date, extraData}) => {
   return new Promise(function(resolve, reject) {
     const historyLog = [action, game, client, date, extraData]
-    appendRow('history', historyLog, 'ROWS').then(sheetsResponse => {
+    helpers.appendRow('history', historyLog, 'ROWS').then(sheetsResponse => {
       if (sheetsResponse) {
         resolve({message: 'success'})
       }
@@ -102,7 +18,7 @@ const insertHistory = ({action, game, client, date, extraData}) => {
 
 const insertDamage = (row) => {
   return new Promise(function(resolve, reject) {
-    appendRow('damage', row, 'ROWS').then(sheetsResponse => {
+    helpers.appendRow('damage', row, 'ROWS').then(sheetsResponse => {
       if (sheetsResponse) {
         resolve({message: 'success'})
       }
@@ -114,7 +30,7 @@ const insertDamage = (row) => {
 
 const gamesReference = (games) => {
   return new Promise((resolve, reject) => {
-    getRange('log', 'A2:E', 'ROWS').then(sheetsResponse => {
+    helpers.getRange('log', 'A2:E', 'ROWS').then(sheetsResponse => {
       const referencedGamesArray = sheetsResponse.map((element, index) => {
         return {
           game: element[0],
@@ -140,7 +56,7 @@ export const checkPassword = password => password !== 'unicornio'
 
 export const getGamesList = () => {
   return new Promise((resolve, reject) => {
-    getRange('log', 'A2:A', 'COLUMNS').then(sheetsResponse => {
+    helpers.getRange('log', 'A2:A', 'COLUMNS').then(sheetsResponse => {
       const gamesArray = sheetsResponse[0]
       resolve({data: gamesArray})
     })
@@ -149,7 +65,7 @@ export const getGamesList = () => {
 
 export const getRentedGamesList = () => {
   return new Promise((resolve, reject) => {
-    getRange('log', 'A2:E', 'ROWS').then(sheetsResponse => {
+    helpers.getRange('log', 'A2:E', 'ROWS').then(sheetsResponse => {
       const gamesArray = sheetsResponse.filter(element => element[3] && !element[4]).map(element => {
         const rentInfo = element[3].replace('(', '').replace(')', '').split(' ')
         return {game: element[0], client_id: rentInfo[0], date: `${rentInfo[1]} ${rentInfo[2]}`}
@@ -161,7 +77,7 @@ export const getRentedGamesList = () => {
 
 export const getAvaliableGamesList = () => {
   return new Promise((resolve, reject) => {
-    getRange('log', 'A2:E', 'ROWS').then(sheetsResponse => {
+    helpers.getRange('log', 'A2:E', 'ROWS').then(sheetsResponse => {
       const gamesArray = sheetsResponse.filter(element => element[1] && !element[3] && !element[4]).map(element => element[0])
       resolve({data: gamesArray})
     })
@@ -192,7 +108,7 @@ export const findLateGamesList = (gamesArray) => {
 
 export const getClientInfoById = (id) => {
   return new Promise((resolve, reject) => {
-    getRange('registers', 'A2:G', 'ROWS').then(sheetsResponse => {
+    helpers.getRange('registers', 'A2:G', 'ROWS').then(sheetsResponse => {
       const clientArray = sheetsResponse.find(array => array[0] === id)
       const clientObject = {
         name: clientArray[1],
@@ -223,7 +139,7 @@ export const revision = (items) => {
         })
       }
 
-      bulkUpdate(bulkData).then(() => {
+      helpers.bulkUpdate(bulkData).then(() => {
         for (let currentGame of referencedGamesArray) {
           insertHistory({
             action: 'Conferência',
@@ -266,7 +182,7 @@ export const checkOut = (items) => {
         })
       }
 
-      bulkUpdate(bulkData).then(() => {
+      helpers.bulkUpdate(bulkData).then(() => {
         for (let currentGame of referencedGamesArray) {
           const foundLateGame = items.lateGames.find(object => object.game && object.game === currentGame)
           insertHistory({
@@ -303,7 +219,7 @@ export const checkIn = (items) => {
         })
       }
 
-      bulkUpdate(bulkData).then(() => {
+      helpers.bulkUpdate(bulkData).then(() => {
         for (let currentGame of referencedGamesArray) {
           const gamePrice = currentGame.row[5] || 'não especificado'
           insertHistory({action: 'Locação', game: currentGame.game, client: items.cpf, date: currentMoment, extraData: `Preço: ${gamePrice}`})
@@ -329,7 +245,7 @@ export const createClient = (clientObject) => {
       clientObject.agreement,
       clientObject.indication
     ]
-    appendRow('registers', clientRow, 'ROWS').then(sheetsResponse => {
+    helpers.appendRow('registers', clientRow, 'ROWS').then(sheetsResponse => {
       if (sheetsResponse) {
         resolve({message: 'success'})
       }
@@ -341,7 +257,7 @@ export const createClient = (clientObject) => {
 
 export const adminCheck = (adminId) => {
   return new Promise((resolve, reject) => {
-    getRange('admins', 'A2:B', 'ROWS').then(sheetsResponse => {
+    helpers.getRange('admins', 'A2:B', 'ROWS').then(sheetsResponse => {
       for (let admin of sheetsResponse) {
         if (admin[0] === adminId) {
           resolve({
