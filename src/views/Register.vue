@@ -6,15 +6,15 @@
     <v-card class="pa-2" width="320px">
       <v-card-text>
         <v-layout align-start fill-height column>
-          <v-text-field label="CPF" v-model="formData.cpf" mask="###.###.###-##" solo return-masked-value />
-          <v-text-field label="Nome completo" v-model="formData.name" solo />
-          <v-text-field label="Endereço" v-model="formData.address" solo />
-          <v-text-field label="Email" v-model="formData.email" solo />
-          <v-text-field label="Celular" v-model="formData.cel" mask="(##) # ####-####" solo />
-          <v-text-field label="Rede social" v-model="formData.social" solo />
-          <v-select label="O que te trouxe até a loja?" @input="setIndication" :items="indicationOptions" solo />
-          <v-text-field label="Senha do administrador" clearable name="admin-password" autocomplete="false" v-model="adminPassword" solo :append-icon="visibility ? 'visibility' : 'visibility_off'" @click:append="() => (visibility = !visibility)"
-            :type="visibility ? 'password' : 'text'" required :error="passwordError" />
+          <v-text-field label="CPF" v-model="formData.cpf" clearable name="cpf" solo mask="###.###.###-##" @input="validateId" return-masked-value required />
+          <v-text-field label="Nome completo" v-model="formData.name" solo clearable required />
+          <v-text-field label="Endereço" v-model="formData.address" solo clearable required />
+          <v-text-field label="Email" v-model="formData.email" solo clearable />
+          <v-text-field label="Celular" v-model="formData.cel" mask="(##) # ####-####" solo clearable />
+          <v-text-field label="Rede social" v-model="formData.social" solo clearable />
+          <v-select label="O que te trouxe até a loja?" @input="setIndication" :items="indicationOptions" solo clearable />
+          <v-text-field label="Senha do administrador" clearable name="admin-password" v-model="adminPassword" solo :append-icon="visibility ? 'visibility' : 'visibility_off'" @click:append="() => (visibility = !visibility)" :type="visibility ? 'password' : 'text'"
+            required :error="passwordError" />
         </v-layout>
       </v-card-text>
       <v-card-actions>
@@ -60,7 +60,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['registerClient']),
+    ...mapActions(['registerClient', 'getClientInfo']),
     submit() {
       this.submitLoader = true
       if (this.acceptedTerms) {
@@ -70,12 +70,25 @@ export default {
         }
         this.registerClient({ adminPassword: this.adminPassword, client }).then(() => {
           this.submitLoader = false
-          this.$snackbar({ message: 'Cliente cadastrado com sucesso!', snackbarColor: 'success', btnText: 'Menu incial' }).catch(() => {
+          this.$confirm({ message: 'Cliente cadastrado com sucesso!', confirmColor: 'success', confirmText: 'Menu incial', cancelColor: 'primary', cancelText: 'Cadastrar outro cliente' }).then(() => {
             this.$router.push('/')
+          }).catch(() => {
+            this.formData = {
+              cpf: null,
+              name: null,
+              address: null,
+              cel: null,
+              email: null,
+              social: null,
+              indication: null
+            }
+            this.acceptedTerms = false
+            this.adminPassword = ''
+            this.submitLoader = false
           })
         }).catch(error => {
           this.submitLoader = false
-          this.$snackbar({ message: error.message, snackbarColor: 'error', btnText: 'Menu incial' }).catch(() => {
+          this.$confirm({ message: `Erro ao realizar o cadastro. Informações sobre o erro: ${error}`, confirmColor: 'success', confirmText: 'Menu incial', cancelColor: 'error', cancelText: 'Tentar novamente' }).then(() => {
             this.$router.push('/')
           })
         })
@@ -84,7 +97,16 @@ export default {
         this.$snackbar({ message: 'Você deve concordar com os termos de locação', snackbarColor: 'error' })
       }
     },
-    setIndication(value) { this.formData.indication = value }
+    setIndication(value) { this.formData.indication = value },
+    validateId() {
+      this.getClientInfo(this.formData.cpf).then(client => {
+        this.$confirm({ message: 'CPF já cadastrado, deseja realizar outro cadastro?' }).then(() => {
+          this.formData.cpf = null
+        }).catch(() => {
+          this.$router.push('/')
+        })
+      }).catch(() => {})
+    }
   },
   mounted() {
     this.formData.cpf = this.$route.params.cpf
