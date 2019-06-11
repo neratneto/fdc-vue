@@ -54,6 +54,8 @@ export default {
         this.submitLoader = false
         this.$confirm({ message: 'Conferência realizada com sucesso!', confirmColor: 'success', confirmText: 'Menu incial', cancelColor: 'primary', cancelText: 'Nova conferência' }).then(() => {
           this.$router.push('/')
+        }).catch(() => {
+          this.selectedGames = []
         })
       }).catch(error => {
         this.submitLoader = false

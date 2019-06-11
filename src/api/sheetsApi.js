@@ -157,6 +157,9 @@ export const revision = (items) => {
           })
 
           if (items.damage) {
+            while (currentGame.row.length < 4) {
+              currentGame.row.push('')
+            }
             insertDamage([
               ...currentGame.row,
               items.damageDescription
