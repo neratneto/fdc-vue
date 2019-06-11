@@ -52,12 +52,12 @@ export default {
       }
       this.logRevision(items).then(response => {
         this.submitLoader = false
-        this.$snackbar({ message: 'Sucesso!', snackbarColor: 'success', btnText: 'Menu incial' }).catch(() => {
+        this.$confirm({ message: 'Conferência realizada com sucesso!', confirmColor: 'success', confirmText: 'Menu incial', cancelColor: 'primary', cancelText: 'Nova conferência' }).then(() => {
           this.$router.push('/')
         })
       }).catch(error => {
         this.submitLoader = false
-        this.$snackbar({ message: error, snackbarColor: 'error', btnText: 'Menu incial' }).catch(() => {
+        this.$confirm({ message: `Erro ao realizar a conferência. Informações sobre o erro: ${error}`, confirmColor: 'success', confirmText: 'Menu incial', cancelColor: 'error', cancelText: 'Tentar novamente' }).then(() => {
           this.$router.push('/')
         })
       })

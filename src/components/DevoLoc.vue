@@ -1,6 +1,6 @@
 <template>
 <v-container>
-  <p class="page-title">{{ capitalize(actionType) }}</p>
+  <p class="page-title">{{ capitalizedAction }}</p>
   <v-layout class="py-2" wrap>
     <v-flex>
       <cpf-jogo-senha :cpf.sync="cpf" :selectedGames.sync="selectedGames" :password-valid.sync="passwordValid" :id-function="fetchClientInfo" />
@@ -31,11 +31,13 @@ export default {
     cpf: null,
     selectedGames: null,
     clientInfoLoader: false,
-    passwordValid: false,
-    capitalize: _.capitalize
+    passwordValid: false
   }),
   props: {
     actionType: String
+  },
+  computed: {
+    capitalizedAction() { return _.capitalize(this.actionType) }
   },
   methods: {
     ...mapActions(['getClientInfo', 'logCheckOut', 'logCheckIn', 'setAvaliableGamesList', 'setRentedGamesList', 'findLateGames']),
@@ -65,12 +67,12 @@ export default {
 
       this.logCheckOut(items).then(response => {
         this.submitLoader = false
-        this.$snackbar({ message: 'Sucesso!', snackbarColor: 'success', btnText: 'Menu incial' }).catch(() => {
+        this.$confirm({ message: `${this.capitalizedAction} realizada com sucesso!`, confirmColor: 'success', confirmText: 'Menu incial', cancelColor: 'primary', cancelText: `Nova ${this.actionType}` }).then(() => {
           this.$router.push('/')
         })
       }).catch(error => {
         this.submitLoader = false
-        this.$snackbar({ message: error, snackbarColor: 'error', btnText: 'Menu incial' }).catch(() => {
+        this.$confirm({ message: `Erro ao realizar a ${this.actionType}. Informações sobre o erro: ${error}`, confirmColor: 'success', confirmText: 'Menu incial', cancelColor: 'error', cancelText: 'Tentar novamente' }).then(() => {
           this.$router.push('/')
         })
       })
@@ -84,12 +86,12 @@ export default {
 
       this.logCheckIn(items).then(response => {
         this.submitLoader = false
-        this.$snackbar({ message: 'Sucesso!', snackbarColor: 'success', btnText: 'Menu incial' }).catch(() => {
+        this.$confirm({ message: `${this.capitalizedAction} realizada com sucesso!`, confirmColor: 'success', confirmText: 'Menu incial', cancelColor: 'primary', cancelText: `Nova ${this.actionType}` }).then(() => {
           this.$router.push('/')
         })
       }).catch(error => {
         this.submitLoader = false
-        this.$snackbar({ message: error, snackbarColor: 'error', btnText: 'Menu incial' }).catch(() => {
+        this.$confirm({ message: `Erro ao realizar a ${this.actionType}. Informações sobre o erro: ${error}`, confirmColor: 'success', confirmText: 'Menu incial', cancelColor: 'error', cancelText: 'Tentar novamente' }).then(() => {
           this.$router.push('/')
         })
       })
