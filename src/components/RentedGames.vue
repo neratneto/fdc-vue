@@ -42,16 +42,17 @@ export default {
     fetchRentedGames() {
       this.rentedLoader = true
       this.getRentedGames().then(data => {
-        this.rentedItems = data
+        this.rentedItems = data.map(element => {
+          return { ...element, date: element.date.includes('/') ? this.$moment(element.date, 'DD/MM/YYYY HH:mm') : this.$moment(element.date) }
+        })
         this.rentedLoader = false
       })
     },
     formatDate(date) {
-      const dateMoment = date.includes('/') ? this.$moment(date, 'DD/MM/YYYY HH:mm') : this.$moment(date)
-      return dateMoment.format('DD/MM/YYYY | HH:mm')
+      return date.format('DD/MM/YYYY | HH:mm')
     },
     isRentLate(date) {
-      const daysDifference = this.$moment().diff(this.$moment(date), 'days')
+      const daysDifference = this.$moment().diff(date, 'days')
       return Boolean(daysDifference > 7)
     }
   },
