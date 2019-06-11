@@ -108,15 +108,15 @@ export const findLateGamesList = (gamesArray) => {
 
 export const getClientInfoById = (id) => {
   return new Promise((resolve, reject) => {
-    helpers.getRange('registers', 'A2:G', 'ROWS').then(sheetsResponse => {
+    helpers.getRange('registers', 'A2:F', 'ROWS').then(sheetsResponse => {
       const clientArray = sheetsResponse.find(array => array[0] === id)
+      if (!clientArray) reject('CPF not found')
       const clientObject = {
         name: clientArray[1],
         address: clientArray[2],
-        tel: clientArray[3],
-        cel: clientArray[4],
-        email: clientArray[5],
-        social: clientArray[6]
+        cel: clientArray[3],
+        email: clientArray[4],
+        social: clientArray[5]
       }
       resolve({data: clientObject})
     })

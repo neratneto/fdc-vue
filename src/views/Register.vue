@@ -6,13 +6,12 @@
     <v-card class="pa-2" width="320px">
       <v-card-text>
         <v-layout align-start fill-height column>
-          <v-text-field label="CPF" v-model="cpf" mask="###.###.###-##" solo return-masked-value />
-          <v-text-field label="Nome completo" v-model="name" solo />
-          <v-text-field label="Endereço" v-model="address" solo />
-          <v-text-field label="Email" v-model="email" solo />
-          <v-text-field label="Telefone" v-model="tel" mask="(##) ####-####" solo />
-          <v-text-field label="Celular" v-model="cel" mask="(##) # ####-####" solo />
-          <v-text-field label="Rede social" v-model="social" solo />
+          <v-text-field label="CPF" v-model="formData.cpf" mask="###.###.###-##" solo return-masked-value />
+          <v-text-field label="Nome completo" v-model="formData.name" solo />
+          <v-text-field label="Endereço" v-model="formData.address" solo />
+          <v-text-field label="Email" v-model="formData.email" solo />
+          <v-text-field label="Celular" v-model="formData.cel" mask="(##) # ####-####" solo />
+          <v-text-field label="Rede social" v-model="formData.social" solo />
           <v-select label="O que te trouxe até a loja?" @input="setIndication" :items="indicationOptions" solo />
           <v-text-field label="Senha do administrador" clearable name="admin-password" autocomplete="false" v-model="adminPassword" solo :append-icon="visibility ? 'visibility' : 'visibility_off'" @click:append="() => (visibility = !visibility)"
             :type="visibility ? 'password' : 'text'" required :error="passwordError" />
@@ -39,15 +38,16 @@ export default {
   },
   data: () => ({
     visibility: true,
-    cpf: null,
-    name: null,
-    address: null,
-    tel: null,
-    cel: null,
-    email: null,
-    social: null,
+    formData: {
+      cpf: null,
+      name: null,
+      address: null,
+      cel: null,
+      email: null,
+      social: null,
+      indication: null
+    },
     acceptedTerms: false,
-    indication: null,
     adminPassword: '',
     submitLoader: false,
     indicationOptions: ['Facebook', 'Instagram', 'Amigos', 'Família', 'Pa-Kua', 'Eventos', 'Outros']
@@ -65,15 +65,8 @@ export default {
       this.submitLoader = true
       if (this.acceptedTerms) {
         const client = {
-          cpf: this.cpf,
-          name: this.name,
-          address: this.address,
-          tel: this.tel,
-          cel: this.cel,
-          email: this.email,
-          social: this.social,
-          agreement: `Concordou com o contrato vigente em ${this.$moment()}`,
-          indication: this.indication
+          ...this.formData,
+          agreement: `Concordou com o contrato vigente em ${this.$moment()}`
         }
         this.registerClient({ adminPassword: this.adminPassword, client }).then(() => {
           this.submitLoader = false
@@ -91,7 +84,10 @@ export default {
         this.$snackbar({ message: 'Você deve concordar com os termos de locação', snackbarColor: 'error' })
       }
     },
-    setIndication(value) { this.indication = value }
+    setIndication(value) { this.formData.indication = value }
+  },
+  mounted() {
+    this.formData.cpf = this.$route.params.cpf
   }
 }
 </script>

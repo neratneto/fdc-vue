@@ -106,9 +106,6 @@ export default {
           label: 'Endereço',
           value: client.address
         }, {
-          label: 'Telefone',
-          value: client.tel
-        }, {
           label: 'Celular',
           value: client.cel
         }, {
@@ -122,7 +119,9 @@ export default {
       }).catch(error => {
         this.clientInfoLoader = false
         this.$confirm({ message: 'CPF não encontrado, deseja realizar cadastro?', cancelText: 'Tentar novamente' }).then(() => {
-          this.$router.push('/register')
+          this.$router.push({ name: 'register', params: { cpf: this.cpf } })
+        }).catch(() => {
+          this.cpf = null
         })
       })
     },
