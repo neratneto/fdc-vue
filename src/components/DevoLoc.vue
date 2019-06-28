@@ -4,7 +4,7 @@
   <v-layout class="py-2" wrap>
     <v-flex>
       <cpf-jogo-senha :cpf.sync="cpf" :selectedGames.sync="selectedGames" :password-valid.sync="passwordValid" :id-function="fetchClientInfo" />
-      <v-btn color="secondary" :disabled="passwordValid" :loading="submitLoader" @click="submit">Enviar!</v-btn>
+      <v-btn color="secondary" :disabled="$v.$invalid" :loading="submitLoader" @click="submit">Enviar!</v-btn>
     </v-flex>
     <v-flex>
       <v-card class="pa-3" v-if="clientInfo && !clientInfoLoader">
@@ -20,6 +20,7 @@
 import _ from 'lodash'
 import CpfJogoSenha from './CpfJogoSenha.vue'
 import { mapActions } from 'vuex'
+import { required, minLength } from 'vuelidate/lib/validators'
 
 export default {
   components: {
@@ -33,6 +34,18 @@ export default {
     clientInfoLoader: false,
     passwordValid: false
   }),
+  validations: {
+    cpf: {
+      required,
+      minLength: minLength(14)
+    },
+    selectedGames: {
+      required
+    },
+    passwordValid: {
+      isTrue: (value) => value === true
+    }
+  },
   props: {
     actionType: String
   },

@@ -17,7 +17,7 @@
       </v-layout>
     </v-flex>
     <v-flex xs12>
-      <v-btn color="secondary" :disabled="passwordValid" :loading="submitLoader" @click="submit">Enviar!</v-btn>
+      <v-btn color="secondary" :disabled="$v.$invalid" :loading="submitLoader" @click="submit">Enviar!</v-btn>
     </v-flex>
   </v-layout>
 </v-container>
@@ -26,6 +26,7 @@
 <script>
 import CpfJogoSenha from '../components/CpfJogoSenha.vue'
 import { mapActions } from 'vuex'
+import { required, minLength } from 'vuelidate/lib/validators'
 
 export default {
   components: {
@@ -40,6 +41,18 @@ export default {
     adminName: null,
     passwordValid: false
   }),
+  validations: {
+    cpf: {
+      required,
+      minLength: minLength(14)
+    },
+    selectedGames: {
+      required
+    },
+    passwordValid: {
+      isTrue: (value) => value === true
+    }
+  },
   methods: {
     ...mapActions(['setFullGamesList', 'logRevision', 'getAdmin']),
     submit() {

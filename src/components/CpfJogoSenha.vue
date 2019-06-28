@@ -26,9 +26,9 @@ export default {
       possibleGames: state => state.gamesList
     }),
     passwordError() {
-      const valid = checkPassword(this.adminPassword)
-      this.$emit('update:passwordValid', valid)
-      return valid
+      const invalid = checkPassword(this.adminPassword)
+      this.$emit('update:passwordValid', !invalid)
+      return invalid
     },
     scopedCpf: {
       get() {

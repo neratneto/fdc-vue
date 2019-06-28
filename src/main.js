@@ -8,12 +8,14 @@ import VueMomentLib from 'vue-moment-lib'
 import Confirm from '@/plugins/confirm/confirm.js'
 import Snackbar from '@/plugins/snackbar/snackbar.js'
 import 'vuetify/dist/vuetify.min.css'
+import Vuelidate from 'vuelidate'
 
 Moment.locale('pt-BR')
 
 Vue.use(Confirm)
 Vue.use(Snackbar)
 Vue.use(VueMomentLib, { moment: Moment })
+Vue.use(Vuelidate)
 
 Vue.use(Vuetify, {
   theme: {

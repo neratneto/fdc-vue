@@ -6,11 +6,11 @@
     <v-card class="pa-2" width="320px">
       <v-card-text>
         <v-layout align-start fill-height column>
-          <v-text-field label="CPF" v-model="formData.cpf" clearable name="cpf" solo mask="###.###.###-##" @input="validateId" return-masked-value required />
+          <v-text-field label="CPF" v-model="formData.cpf" clearable name="cpf" solo mask="###.###.###-##" @input="validateId" return-masked-value required :error="$v.formData.cpf.$invalid" />
           <v-text-field label="Nome completo" v-model="formData.name" solo clearable required />
           <v-text-field label="Endereço" v-model="formData.address" solo clearable required />
-          <v-text-field label="Email" v-model="formData.email" solo clearable />
-          <v-text-field label="Celular" v-model="formData.cel" mask="(##) # ####-####" solo clearable />
+          <v-text-field label="Email" v-model="formData.email" solo clearable :error="$v.formData.email.$invalid" />
+          <v-text-field label="Celular" v-model="formData.cel" mask="(##) # ####-####" solo clearable :error="$v.formData.cel.$invalid" />
           <v-text-field label="Rede social" v-model="formData.social" solo clearable />
           <v-select label="O que te trouxe até a loja?" @input="setIndication" :items="indicationOptions" solo clearable />
           <v-text-field label="Senha do administrador" clearable name="admin-password" v-model="adminPassword" solo :append-icon="visibility ? 'visibility' : 'visibility_off'" @click:append="() => (visibility = !visibility)" :type="visibility ? 'password' : 'text'"
@@ -18,7 +18,7 @@
         </v-layout>
       </v-card-text>
       <v-card-actions>
-        <v-btn :color="acceptedTerms ? 'secondary' : 'error'" :loading="submitLoader" @click="submit">Enviar!</v-btn>
+        <v-btn :color="acceptedTerms ? 'secondary' : 'error'" :disabled="$v.$invalid" :loading="submitLoader" @click="submit">Enviar!</v-btn>
         <v-spacer />
         <termos :terms.sync="acceptedTerms" />
       </v-card-actions>
@@ -31,6 +31,7 @@
 import Termos from '@/components/Termos.vue'
 import { mapActions } from 'vuex'
 import { checkPassword } from '@/api/sheetsApi.js'
+import { required, minLength, email } from 'vuelidate/lib/validators'
 
 export default {
   components: {
@@ -52,6 +53,34 @@ export default {
     submitLoader: false,
     indicationOptions: ['Facebook', 'Instagram', 'Amigos', 'Família', 'Pa-Kua', 'Eventos', 'Outros']
   }),
+  validations: {
+    formData: {
+      cpf: {
+        required,
+        minLength: minLength(14)
+      },
+      name: {
+        required
+      },
+      address: {
+        required
+      },
+      cel: {
+        required,
+        minLength: minLength(10)
+      },
+      email: {
+        required,
+        email
+      },
+      indication: {
+        required
+      }
+    },
+    adminPassword: {
+      required
+    }
+  },
   computed: {
     passwordError() {
       const valid = checkPassword(this.adminPassword)
