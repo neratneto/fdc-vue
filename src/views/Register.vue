@@ -116,8 +116,8 @@ export default {
       }
 
       const service_id = 'default_service'
-      const template_id = 'template_Qfo7MnVQ'
-      const user_id = 'user_XVulW7wrfKkv3bBht1NJA'
+      const template_id = window.localStorage.getItem("emailTemplateId")
+      const user_id = window.localStorage.getItem("emailUserId")
       emailjs.send(service_id, template_id, template_params, user_id)
     }
   },
