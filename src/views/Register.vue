@@ -70,6 +70,7 @@ export default {
         }
         this.registerClient({ adminPassword: this.adminPassword, client }).then(() => {
           this.submitLoader = false
+          this.sendEmail()
           this.$confirm({ message: 'Cliente cadastrado com sucesso!', confirmColor: 'success', confirmText: 'Menu incial', cancelColor: 'primary', cancelText: 'Cadastrar outro cliente' }).then(() => {
             this.$router.push('/')
           }).catch(() => {
@@ -106,6 +107,18 @@ export default {
           this.$router.push('/')
         })
       }).catch(() => {})
+    },
+    sendEmail() {
+      const template_params = {
+        'to_email': this.formData.email,
+        'to_name': this.formData.name,
+        'confirmed_date': this.$moment().format('HH:mm DD/MM/YYYY')
+      }
+
+      const service_id = 'default_service'
+      const template_id = 'template_Qfo7MnVQ'
+      const user_id = 'user_XVulW7wrfKkv3bBht1NJA'
+      emailjs.send(service_id, template_id, template_params, user_id)
     }
   },
   mounted() {
