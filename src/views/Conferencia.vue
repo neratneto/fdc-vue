@@ -48,7 +48,7 @@ export default {
         adminName: this.adminName,
         selectedGames: this.selectedGames,
         damage: this.damage,
-        damageDescription: this.damageDescription
+        damageDescription: `${this.damageDescription} | conferido por ${this.adminName}`
       }
       this.logRevision(items).then(response => {
         this.submitLoader = false
