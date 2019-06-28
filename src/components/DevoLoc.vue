@@ -118,11 +118,13 @@ export default {
         this.clientInfoLoader = false
       }).catch(error => {
         this.clientInfoLoader = false
-        this.$confirm({ message: 'CPF não encontrado, deseja realizar cadastro?', cancelText: 'Tentar novamente' }).then(() => {
-          this.$router.push({ name: 'register', params: { cpf: this.cpf } })
-        }).catch(() => {
-          this.cpf = null
-        })
+        if (this.actionType === 'locação') {
+          this.$confirm({ message: 'CPF não encontrado, deseja realizar cadastro?', cancelText: 'Tentar novamente' }).then(() => {
+            this.$router.push({ name: 'register', params: { cpf: this.cpf } })
+          }).catch(() => {
+            this.cpf = null
+          })
+        }
       })
     },
     executeTypeFunction(locacaoFunction, devolucaoFunction) {
