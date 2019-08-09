@@ -30,7 +30,7 @@ const insertDamage = (row) => {
 
 const gamesReference = (games) => {
   return new Promise((resolve, reject) => {
-    helpers.getRange('log', 'A2:D', 'ROWS').then(sheetsResponse => {
+    helpers.getRange('log', 'A2:F', 'ROWS').then(sheetsResponse => {
       const referencedGamesArray = sheetsResponse.map((element, index) => {
         return {
           game: element[0],
@@ -229,7 +229,7 @@ export const checkIn = (items) => {
 
       helpers.bulkUpdate(bulkData).then(() => {
         for (let currentGame of referencedGamesArray) {
-          const gamePrice = currentGame.row[4] || 'não especificado'
+          const gamePrice = currentGame.row[5] || 'não especificado'
           insertHistory({action: 'Locação', game: currentGame.game, client: items.cpf, date: currentMoment, extraData: `Preço: ${gamePrice}`})
         }
         resolve({message: 'success'})
