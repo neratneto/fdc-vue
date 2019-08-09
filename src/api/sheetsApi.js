@@ -284,3 +284,16 @@ export const adminCheck = (adminId) => {
     })
   })
 }
+
+export const getRegisterDates = () => {
+  return new Promise((resolve, reject) => {
+    helpers.getRange('registers', 'G2:G', 'ROWS').then(sheetsResponse => {
+      const registersDatesArray = sheetsResponse.map(register => register[0].substring(40))
+      if (registersDatesArray) {
+        resolve({data: registersDatesArray})
+      } else {
+        reject('No registers found')
+      }
+    })
+  })
+}

@@ -4,6 +4,7 @@ import Home from '@/views/Home.vue'
 import Conferencia from '@/views/Conferencia.vue'
 import DevoLoc from '@/components/DevoLoc.vue'
 import Register from '@/views/Register.vue'
+import Performance from '@/views/Performance.vue'
 
 
 Vue.use(Router)
@@ -33,6 +34,10 @@ export default new Router({
       name: 'register',
       component: Register,
       props: true
+    }, {
+      path: '/performance',
+      name: 'performance',
+      component: Performance
     }
   ]
 })

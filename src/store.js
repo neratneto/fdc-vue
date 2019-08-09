@@ -77,6 +77,10 @@ export default new Vuex.Store({
     async getAdmin({}, adminId) {
       const { data } = await sheetsApi.adminCheck(adminId)
       return data
+    },
+    async getRegisterTimestamps({}) {
+      const { data } = await sheetsApi.getRegisterDates()
+      return data
     }
   }
 })
