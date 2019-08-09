@@ -81,6 +81,10 @@ export default new Vuex.Store({
     async getRegisterTimestamps({}) {
       const { data } = await sheetsApi.getRegisterDates()
       return data
-    }
+    },
+    async getHistoryDates({}, actionType) {
+      const { data } = await sheetsApi.getActionHistoryDates(actionType)
+      return data
+    }    
   }
 })

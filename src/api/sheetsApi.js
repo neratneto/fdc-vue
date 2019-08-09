@@ -297,3 +297,17 @@ export const getRegisterDates = () => {
     })
   })
 }
+
+
+export const getActionHistoryDates = (actionType) => {
+  return new Promise((resolve, reject) => {
+    helpers.getRange('history', 'A2:D', 'ROWS').then(sheetsResponse => {
+      const historyDates = sheetsResponse.filter(historyRow => historyRow[0] === actionType).map(historyRow => historyRow[3])
+      if (historyDates) {
+        resolve({data: historyDates})
+      } else {
+        reject('No history found')
+      }
+    })
+  })
+}
