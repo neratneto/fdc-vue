@@ -144,9 +144,9 @@ export const revision = (items) => {
         })
       }
 
-      helpers.bulkUpdate(bulkData).then(() => {
+      helpers.bulkUpdate(bulkData).then(async () => {
         for (let currentGame of referencedGamesArray) {
-          insertHistory({
+          await insertHistory({
             action: 'Conferência',
             game: currentGame.game,
             client: items.adminName,
@@ -190,10 +190,10 @@ export const checkOut = (items) => {
         })
       }
 
-      helpers.bulkUpdate(bulkData).then(() => {
+      helpers.bulkUpdate(bulkData).then(async () => {
         for (let currentGame of referencedGamesArray) {
           const foundLateGame = items.lateGames.find(object => object.game && object.game === currentGame)
-          insertHistory({
+          await insertHistory({
             action: 'Devolução',
             game: currentGame.game,
             client: items.cpf,
@@ -218,6 +218,7 @@ export const checkIn = (items) => {
     gamesReference(items.selectedGames).then(referencedGamesArray => {
       const bulkData = []
       for (let gameObject of referencedGamesArray) {
+        console.log('logs', referencedGamesArray)
         bulkData.push({
           range: `log!C${gameObject.rowIndex}:E${gameObject.rowIndex}`,
           values: [
@@ -227,10 +228,11 @@ export const checkIn = (items) => {
         })
       }
 
-      helpers.bulkUpdate(bulkData).then(() => {
+      helpers.bulkUpdate(bulkData).then(async () => {
         for (let currentGame of referencedGamesArray) {
-          const gamePrice = currentGame.row[5] || 'não especificado'
-          insertHistory({action: 'Locação', game: currentGame.game, client: items.cpf, date: currentMoment, extraData: `Preço: ${gamePrice}`})
+        console.log('history', referencedGamesArray)
+        const gamePrice = currentGame.row[5] || 'não especificado'
+          await insertHistory({action: 'Locação', game: currentGame.game, client: items.cpf, date: currentMoment, extraData: `Preço: ${gamePrice}`})
         }
         resolve({message: 'success'})
       }).catch(e => {
