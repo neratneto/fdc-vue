@@ -84,14 +84,6 @@ export default {
         this.cadastrosLoading = false
       })
     },
-    getLocacoes() {
-      this.locacoesLoading = true
-      this.getHistoryDates('Locação').then(timestamps => {
-        const formattedTimestamps = timestamps.map(timestamp => this.$moment(timestamp))
-        this.locacoes = this.setHistoryDates('monthly', formattedTimestamps)
-        this.locacoesLoading = false
-      })
-    },
     getHistory(variableName, actionName) {
       this[`${variableName}Loading`] = true
       this.getHistoryDates(actionName).then(timestamps => {
