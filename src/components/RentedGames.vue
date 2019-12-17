@@ -1,7 +1,15 @@
 <template>
 <v-expansion-panel-content>
   <span class="body-2" slot="header">Jogos locados</span>
-  <v-data-table :loading="rentedLoader" :headers="rentedHeaders" :items="rentedItems" :rows-per-page-items="[10, 15, 25, 50]">
+   <v-text-field
+   class="mx-4"
+        v-model="search"
+        append-icon="search"
+        label="Search"
+        single-line
+        hide-details
+      ></v-text-field>
+  <v-data-table :loading="rentedLoader" :headers="rentedHeaders" :items="rentedItems" :rows-per-page-items="[10, 15, 25, 50]"  :search="search">
     <template slot="items" slot-scope="props">
       <tr :class="isRentLate(props.item.date) ? 'late-rent' : 'on-time'">
         <td>{{ props.item.game }}</td>
@@ -21,7 +29,8 @@ import { mapActions } from 'vuex'
 export default {
   data: () => ({
     rentedItems: [],
-    rentedLoader: false
+    rentedLoader: false,
+    search: null
   }),
   computed: {
     rentedHeaders() {
