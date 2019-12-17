@@ -11,7 +11,7 @@
       <performance-card class="ma-3" title="Devoluções" :items="devolucoes" :headers="['Ano - Mês', 'Devoluções']" :loading="devolucoesLoading" />
     </v-flex>
     <v-flex xs12 md6>
-      <performance-card class="ma-3" title="Conferências" :items="devolucoes" :headers="['Ano - Mês', 'Conferências']" :loading="devolucoesLoading" />
+      <performance-card class="ma-3" title="Conferências" :items="conferencias" :headers="['Ano - Mês', 'Conferências']" :loading="conferenciasLoading" />
     </v-flex>
   </v-layout>
 </v-container>
