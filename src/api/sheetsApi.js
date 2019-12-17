@@ -218,7 +218,6 @@ export const checkIn = (items) => {
     gamesReference(items.selectedGames).then(referencedGamesArray => {
       const bulkData = []
       for (let gameObject of referencedGamesArray) {
-        console.log('logs', referencedGamesArray)
         bulkData.push({
           range: `log!C${gameObject.rowIndex}:E${gameObject.rowIndex}`,
           values: [
@@ -230,7 +229,6 @@ export const checkIn = (items) => {
 
       helpers.bulkUpdate(bulkData).then(async () => {
         for (let currentGame of referencedGamesArray) {
-        console.log('history', referencedGamesArray)
         const gamePrice = currentGame.row[5] || 'não especificado'
           await insertHistory({action: 'Locação', game: currentGame.game, client: items.cpf, date: currentMoment, extraData: `Preço: ${gamePrice}`})
         }
