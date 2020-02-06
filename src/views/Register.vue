@@ -4,7 +4,7 @@
     <p class="page-title"> Registro de novo usuário!</p>
 
     <v-card class="pa-2" width="320px">
-      <v-card-text>
+      <v-card-text class="pb-0">
         <v-layout align-start fill-height column>
           <v-text-field label="CPF" v-model="formData.cpf" clearable name="cpf" solo mask="###.###.###-##" @input="validateId" return-masked-value required :error="$v.formData.cpf.$invalid" />
           <v-text-field label="Nome completo" v-model="formData.name" solo clearable required />
