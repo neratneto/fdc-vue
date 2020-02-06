@@ -311,3 +311,17 @@ export const getActionHistoryDates = (actionType) => {
     })
   })
 }
+
+export const checkGameDamage = (gamesArray) => {
+  return new Promise((resolve, reject) => {
+    helpers.getRange('damage', 'A2:A', 'ROWS').then(sheetsResponse => {
+      let damagedGames = sheetsResponse.map(damagedRow => damagedRow[0]).filter(gameName => gamesArray.includes(gameName))
+      damagedGames = damagedGames.filter((value, index) => damagedGames.indexOf(value) === index)
+      if (damagedGames.length > 0) {
+        resolve({ data: damagedGames })
+      } else {
+        resolve({ data: false })
+      }
+    })
+  })
+}

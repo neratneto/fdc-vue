@@ -53,7 +53,7 @@ export default {
     capitalizedAction() { return _.capitalize(this.actionType) }
   },
   methods: {
-    ...mapActions(['getClientInfo', 'logCheckOut', 'logCheckIn', 'setAvaliableGamesList', 'setRentedGamesList', 'findLateGames']),
+    ...mapActions(['getClientInfo', 'logCheckOut', 'logCheckIn', 'setAvaliableGamesList', 'setRentedGamesList', 'findLateGames', 'checkGameDamage']),
     checkOut() {
       this.submitLoader = true
       this.findLateGames(this.selectedGames).then(lateGames => {
@@ -82,30 +82,50 @@ export default {
         this.submitLoader = false
         this.$confirm({ message: `${this.capitalizedAction} realizada com sucesso!`, confirmColor: 'success', confirmText: 'Menu incial', cancelColor: 'primary', cancelText: `Nova ${this.actionType}` }).then(() => {
           this.$router.push('/')
+        }).catch(() => {
+          this.executeTypeFunction(this.setAvaliableGamesList, this.setRentedGamesList)
         })
       }).catch(error => {
         this.submitLoader = false
         this.$confirm({ message: `Erro ao realizar a ${this.actionType}. Informações sobre o erro: ${error}`, confirmColor: 'success', confirmText: 'Menu incial', cancelColor: 'error', cancelText: 'Tentar novamente' }).then(() => {
           this.$router.push('/')
+        }).catch(() => {
+          this.executeTypeFunction(this.setAvaliableGamesList, this.setRentedGamesList)
         })
       })
     },
-    checkIn() {
+    async checkIn() {
       this.submitLoader = true
       const items = {
         cpf: this.cpf,
         selectedGames: this.selectedGames
       }
 
+      const damagedGames = await this.checkGameDamage(this.selectedGames)
+      if (damagedGames) {
+        this.$confirm({ message: `Confira a planilha referente aos seguintes jogos que estão danificados: ${damagedGames.join(' ; ')}`, confirmColor: 'success', confirmText: 'Confirmar locação', cancelColor: 'error', cancelText: 'Cancelar locação' }).then(() => {
+          this.submitCheckIn(items)
+        }).catch(() => {
+          this.submitLoader = false
+        })
+      } else {
+        this.submitCheckIn(items)
+      }
+    },
+    submitCheckIn(items) {
       this.logCheckIn(items).then(response => {
         this.submitLoader = false
         this.$confirm({ message: `${this.capitalizedAction} realizada com sucesso!`, confirmColor: 'success', confirmText: 'Menu incial', cancelColor: 'primary', cancelText: `Nova ${this.actionType}` }).then(() => {
           this.$router.push('/')
+        }).catch(() => {
+          this.executeTypeFunction(this.setAvaliableGamesList, this.setRentedGamesList)
         })
       }).catch(error => {
         this.submitLoader = false
         this.$confirm({ message: `Erro ao realizar a ${this.actionType}. Informações sobre o erro: ${error}`, confirmColor: 'success', confirmText: 'Menu incial', cancelColor: 'error', cancelText: 'Tentar novamente' }).then(() => {
           this.$router.push('/')
+        }).catch(() => {
+          this.executeTypeFunction(this.setAvaliableGamesList, this.setRentedGamesList)
         })
       })
     },

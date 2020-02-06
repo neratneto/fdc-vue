@@ -85,6 +85,10 @@ export default new Vuex.Store({
     async getHistoryDates({}, actionType) {
       const { data } = await sheetsApi.getActionHistoryDates(actionType)
       return data
-    }    
+    },
+    async checkGameDamage({}, games) {
+      const { data } = await sheetsApi.checkGameDamage(games)
+      return data
+    }  
   }
 })
