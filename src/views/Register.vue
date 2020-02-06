@@ -13,14 +13,15 @@
           <v-text-field label="Celular" v-model="formData.cel" mask="(##) # ####-####" solo clearable :error="$v.formData.cel.$invalid" />
           <v-text-field label="Rede social" v-model="formData.social" solo clearable />
           <v-select label="O que te trouxe até a loja?" @input="setIndication" :items="indicationOptions" solo clearable />
+          <termos class="mb-4" :terms.sync="acceptedTerms" />
           <v-text-field label="Senha do administrador" clearable name="admin-password" v-model="adminPassword" solo :append-icon="visibility ? 'visibility' : 'visibility_off'" @click:append="() => (visibility = !visibility)" :type="visibility ? 'password' : 'text'"
             required :error="passwordError" />
         </v-layout>
       </v-card-text>
       <v-card-actions>
-        <v-btn :color="acceptedTerms ? 'secondary' : 'error'" :disabled="$v.$invalid" :loading="submitLoader" @click="submit">Enviar!</v-btn>
-        <v-spacer />
-        <termos :terms.sync="acceptedTerms" />
+        <v-layout class="mx-2">
+          <v-btn :color="acceptedTerms ? 'secondary' : 'error'" :disabled="$v.$invalid" :loading="submitLoader" @click="submit">Enviar!</v-btn>
+        </v-layout>
       </v-card-actions>
     </v-card>
   </v-layout>

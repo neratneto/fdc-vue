@@ -1,6 +1,6 @@
 <template>
 <v-dialog v-model="dialog" width="800px">
-  <v-btn slot="activator" color="info">Termos de locação</v-btn>
+  <v-btn slot="activator" :color="scopedTerms ? 'success': 'info'" class="elevation-2 mx-0">Termos de locação</v-btn>
   <v-card>
     <v-card-text>
       <iframe style="border: none;" width="760px" height="600px" src="https://docs.google.com/document/d/e/2PACX-1vSbmewwyibn_DcZEzoPJ0gMsRfxkX-j1I1P8j8jWuKyD30BEMlFCp32aaa0GaCbdNe-Ky8HJzF_L2Kg/pub?embedded=true"></iframe>
