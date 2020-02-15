@@ -3,7 +3,7 @@
   <v-layout wrap>
     <v-flex xs12>
       <v-layout justify-center class="mb-3">
-        <h1 style="font-weight: normal">Filtrar por jogo!</h1>
+        <h1 style="font-weight: normal; color: #fff">Filtrar por jogo!</h1>
       </v-layout>
       <v-layout justify-center>
         <v-autocomplete style="max-width: 480px;" label="Jogo" clearable name="games" :items="possibleGames" v-model="gameFilter" solo />
