@@ -1,6 +1,15 @@
 <template>
 <v-container fluid>
   <v-layout wrap>
+    <v-flex xs12>
+      <v-layout justify-center class="mb-3">
+        <h1 style="font-weight: normal">Filtrar por jogo!</h1>
+      </v-layout>
+      <v-layout justify-center>
+        <v-autocomplete style="max-width: 480px;" label="Jogo" clearable name="games" :items="possibleGames" v-model="gameFilter" solo />
+        <v-btn color="secondary" @click="getAllHistories">Filtrar!</v-btn>
+      </v-layout>
+    </v-flex>
     <v-flex xs12 md6>
       <performance-card class="ma-3" title="Cadastros" :items="cadastros" :headers="['Ano - Mês', 'Novos cadastros']" :loading="cadastrosLoading" />
     </v-flex>
@@ -34,10 +43,16 @@ export default {
     cadastrosLoading: true,
     locacoesLoading: true,
     devolucoesLoading: true,
-    conferenciasLoading: true
+    conferenciasLoading: true,
+    gameFilter: null
   }),
+  computed: {
+    ...mapState({
+      possibleGames: state => state.gamesList
+    })
+  },
   methods: {
-    ...mapActions(['getRegisterTimestamps', 'getHistoryDates']),
+    ...mapActions(['getRegisterTimestamps', 'getHistoryDates', 'setFullGamesList']),
     setCadastros(interval, dates) {
       let chartData = []
       if (interval === 'monthly') {
@@ -85,19 +100,24 @@ export default {
       })
     },
     getHistory(variableName, actionName) {
+      const gameFilter = this.gameFilter || false
       this[`${variableName}Loading`] = true
-      this.getHistoryDates(actionName).then(timestamps => {
+      this.getHistoryDates({ actionName, gameFilter }).then(timestamps => {
         const formattedTimestamps = timestamps.map(timestamp => this.$moment(timestamp))
         this[variableName] = this.setHistoryDates('monthly', formattedTimestamps)
         this[`${variableName}Loading`] = false
       })
+    },
+    getAllHistories() {
+      this.getHistory('locacoes', 'Locação')
+      this.getHistory('devolucoes', 'Devolução')
+      this.getHistory('conferencias', 'Conferência')
     }
   },
   mounted() {
     this.getCadastros()
-    this.getHistory('locacoes', 'Locação')
-    this.getHistory('devolucoes', 'Devolução')
-    this.getHistory('conferencias', 'Conferência')
+    this.getAllHistories()
+    this.setFullGamesList()
   }
 }
 </script>
@@ -107,5 +127,8 @@ export default {
     g {
         font-size: 0.32em !important;
     }
+}
+.app {
+  background-color: rgba(248, 177, 51, 0.8) !important;
 }
 </style>

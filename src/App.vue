@@ -4,7 +4,12 @@
     <v-btn icon v-if="$route.path !== '/'" color="secondary" to="/">
       <v-icon>home</v-icon>
     </v-btn>
-    <settings v-else />
+    <div v-else>
+      <settings />
+      <v-btn icon color="primary" to="/performance">
+        <v-icon>trending_up</v-icon>
+      </v-btn>
+    </div>
   </v-layout>
   <router-view />
 </v-app>

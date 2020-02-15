@@ -299,10 +299,12 @@ export const getRegisterDates = () => {
 }
 
 
-export const getActionHistoryDates = (actionType) => {
+export const getActionHistoryDates = (actionType, gameName = false) => {
   return new Promise((resolve, reject) => {
     helpers.getRange('history', 'A2:D', 'ROWS').then(sheetsResponse => {
-      const historyDates = sheetsResponse.filter(historyRow => historyRow[0] === actionType).map(historyRow => historyRow[3])
+      const historyDates = sheetsResponse
+        .filter(historyRow => gameName ? historyRow[0] === actionType && historyRow[1] === gameName : historyRow[0] === actionType)
+        .map(historyRow => historyRow[3])
       if (historyDates) {
         resolve({data: historyDates})
       } else {
