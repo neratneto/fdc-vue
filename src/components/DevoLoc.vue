@@ -118,6 +118,8 @@ export default {
         this.$confirm({ message: `${this.capitalizedAction} realizada com sucesso!`, confirmColor: 'success', confirmText: 'Menu incial', cancelColor: 'primary', cancelText: `Nova ${this.actionType}` }).then(() => {
           this.$router.push('/')
         }).catch(() => {
+          this.selectedGames = [] // Reset so it doesn't get games from the last operation
+          this.cpf = null
           this.executeTypeFunction(this.setAvaliableGamesList, this.setRentedGamesList)
         })
       }).catch(error => {
