@@ -32,7 +32,8 @@ export default {
     cpf: null,
     selectedGames: null,
     clientInfoLoader: false,
-    passwordValid: false
+    passwordValid: false,
+    hlContactInfo: {}
   }),
   validations: {
     cpf: {
@@ -75,7 +76,8 @@ export default {
       const items = {
         cpf: this.cpf,
         selectedGames: this.selectedGames,
-        lateGames: lateGames
+        lateGames: lateGames,
+        hlContactInfo: this.hlContactInfo
       }
 
       this.logCheckOut(items).then(response => {
@@ -98,7 +100,8 @@ export default {
       this.submitLoader = true
       const items = {
         cpf: this.cpf,
-        selectedGames: this.selectedGames
+        selectedGames: this.selectedGames,
+        hlContactInfo: this.hlContactInfo
       }
 
       const damagedGames = await this.checkGameDamage(this.selectedGames)
@@ -150,6 +153,11 @@ export default {
           label: 'Rede social',
           value: client.social
         }]
+        this.hlContactInfo = {
+          email: client.email,
+          name: client.name,
+          phone: client.cel
+        }
         this.clientInfoLoader = false
       }).catch(error => {
         this.clientInfoLoader = false

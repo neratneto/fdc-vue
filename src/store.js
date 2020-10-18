@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import * as sheetsApi from '@/api/sheetsApi.js'
+import { fireTrigger } from './api/hl-integration'
 
 Vue.use(Vuex)
 
@@ -60,18 +61,33 @@ export default new Vuex.Store({
     async logCheckOut({}, payload) {
       const response = await sheetsApi.checkOut(payload)
 
-      if (response.message === 'success') return 'success'
-      else throw Error(response.message)
+      if (response.message === 'success') {
+        try {
+          await fireTrigger(payload.hlContactInfo, 'fdc-checkout')
+        } catch (err) { }     
+        
+        return 'success'
+      } else throw Error(response.message)
     },
     async logCheckIn({}, payload) {
       const response = await sheetsApi.checkIn(payload)
 
-      if (response.message === 'success') return 'success'
-      else throw Error(response.message)
+      if (response.message === 'success') {
+        try {
+          await fireTrigger(payload.hlContactInfo, 'fdc-checkin')
+        } catch (err) { }     
+        
+        return 'success'
+      } else throw Error(response.message)
     },
     async registerClient({}, payload) {
       if (sheetsApi.checkPassword(payload.adminPassword)) throw Error('Senha incorreta, tente novamente')
       const { message } = await sheetsApi.createClient(payload.client)
+      
+      try {
+        await fireTrigger(payload.client, 'fdc-register')
+      } catch (err) { }     
+      
       return message
     },
     async getAdmin({}, adminId) {
