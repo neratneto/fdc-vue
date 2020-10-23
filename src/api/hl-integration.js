@@ -1,11 +1,11 @@
 import axios from 'axios'
  
 const secrets = {
-  a: window.localStorage.getItem("apiKey"),
-  b: window.localStorage.getItem("clientId")
+  a: window.localStorage.getItem("apiKey") || 'apikeyshouldbehere',
+  b: window.localStorage.getItem("clientId") || 'clientidshouldbehere'
 }
 const HLApi = {
-    apiKey: `d${b[11]}6d${b[1]}b5c-${b[11]}${b[3]}55-${b[9]}fd5-${b[4]}ef${b[1]}-ffdc${b[11]}e${b[11]}${b[6]}${b[6]}${b[0]}f${b[2]}`,
+    apiKey: `d${secrets.b[11]}6d${secrets.b[1]}b5c-${secrets.b[11]}${secrets.b[3]}55-${secrets.b[9]}fd5-${secrets.b[4]}ef${secrets.b[1]}-ffdc${secrets.b[11]}e${secrets.b[11]}${secrets.b[6]}${secrets.b[6]}${secrets.b[0]}f${secrets.b[2]}`,
     contactsUrl: 'https://rest.gohighlevel.com/v1/contacts',
     zapierUrl: 'https://msgsndr.com/zapier'
   };

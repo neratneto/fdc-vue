@@ -16,7 +16,6 @@
             <SheetsApiSettings />
             <v-btn @click="gapiSignIn" color="secondary">Login conta Google</v-btn>
             <EmailApiSettings />
-            <HLApiSettings />
           </v-layout>
         </v-expansion-panel-content>
       </v-expansion-panel>
@@ -28,14 +27,12 @@
 <script>
 import SheetsApiSettings from '@/components/SheetsApiSettings.vue'
 import EmailApiSettings from '@/components/EmailApiSettings.vue'
-import HLApiSettings from '@/components/HLApiSettings.vue'
 import RentedGames from '@/components/RentedGames.vue'
 
 export default {
   components: {
     SheetsApiSettings,
     EmailApiSettings,
-    HLApiSettings,
     RentedGames
   },
   data: () => ({
