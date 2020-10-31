@@ -30,7 +30,7 @@ const insertDamage = (row) => {
 
 const gamesReference = (games) => {
   return new Promise((resolve, reject) => {
-    helpers.getRange('log', 'A2:F', 'ROWS').then(sheetsResponse => {
+    helpers.getRange('log', 'A2:E', 'ROWS').then(sheetsResponse => {
       const referencedGamesArray = sheetsResponse.map((element, index) => {
         return {
           game: element[0],
@@ -63,12 +63,21 @@ export const getGamesList = () => {
   })
 }
 
+export const getNamesList = () => {
+  return new Promise((resolve, reject) => {
+    helpers.getRange('registers', 'B2:B', 'COLUMNS').then(sheetsResponse => {
+      const namesArray = sheetsResponse[0]
+      resolve({data: namesArray})
+    })
+  })
+}
+
 export const getRentedGamesList = () => {
   return new Promise((resolve, reject) => {
     helpers.getRange('log', 'A2:D', 'ROWS').then(sheetsResponse => {
       const gamesArray = sheetsResponse.filter(element => element[2] && !element[3]).map(element => {
         const rentInfo = element[2].replace('(', '').replace(')', '').split(' ')
-        return {game: element[0], client_id: rentInfo[0], date: `${rentInfo[1]} ${rentInfo[2]}`}
+        return {game: element[0], client_id: rentInfo[0], date: `${rentInfo[rentInfo.length - 2]} ${rentInfo[rentInfo.length - 1]}`}
       })
       resolve({data: gamesArray})
     })
@@ -77,7 +86,7 @@ export const getRentedGamesList = () => {
 
 export const getAvaliableGamesList = () => {
   return new Promise((resolve, reject) => {
-    helpers.getRange('log', 'A2:E', 'ROWS').then(sheetsResponse => {
+    helpers.getRange('log', 'A2:D', 'ROWS').then(sheetsResponse => {
       const gamesArray = sheetsResponse.filter(element => element[1] && !element[2] && !element[3]).map(element => element[0])
       resolve({data: gamesArray})
     })
@@ -91,8 +100,7 @@ export const findLateGamesList = (gamesArray) => {
 
       for (let gameObject of referencedGamesArray) {
         let checkInDate = gameObject.row[2].split(' ')
-        checkInDate.shift()
-        checkInDate = checkInDate.join(' ')
+        checkInDate = [checkInDate[checkInDate.length - 2], [checkInDate[checkInDate.length - 1]]].join(' ')
         checkInDate = checkInDate.includes('(') ? Moment(checkInDate, '(DD/MM/YYYY HH:mm)') : Moment(checkInDate)
         const daysLate = Moment().diff(checkInDate, 'days') - 7
 
@@ -108,23 +116,28 @@ export const findLateGamesList = (gamesArray) => {
 
 export const getClientInfoById = (id) => {
   return new Promise((resolve, reject) => {
-    if (id.length === 14) {
-    helpers.getRange('registers', 'A2:F', 'ROWS').then(sheetsResponse => {
-      const clientArray = sheetsResponse.find(array => array[0] === id)
-      if (clientArray) {
-        const clientObject = {
-          name: clientArray[1],
-          address: clientArray[2],
-          cel: clientArray[3],
-          email: clientArray[4],
-          social: clientArray[5]
+    if (id) {
+      helpers.getRange('registers', 'A2:F', 'ROWS').then(sheetsResponse => {
+        const clientArray = sheetsResponse.find(array => array[1] === id)
+        if (clientArray) {
+          const clientObject = {
+            cpf: clientArray[0],
+            name: clientArray[1],
+            address: clientArray[2],
+            cel: clientArray[3],
+            email: clientArray[4],
+            social: clientArray[5]
+          }
+          resolve({data: clientObject})
+        } else {
+          reject('Name not found')
         }
-        resolve({data: clientObject})
-      } else {
-        reject('CPF not found')
-      }
-    })
-  } else { reject() }
+      })
+      .catch(err => {
+        console.error(err)
+        reject()
+      })
+    }
   })
 }
 
@@ -184,7 +197,7 @@ export const checkOut = (items) => {
         bulkData.push({
           range: `log!D${gameObject.rowIndex}`,
           values: [
-            [`${items.cpf} (${currentMoment.format('DD/MM/YYYY HH:mm')})`]
+            [`${items.clientName} (${currentMoment.format('DD/MM/YYYY HH:mm')})`]
           ],
           majorDimension: 'ROWS'
         })
@@ -192,11 +205,12 @@ export const checkOut = (items) => {
 
       helpers.bulkUpdate(bulkData).then(async () => {
         for (let currentGame of referencedGamesArray) {
-          const foundLateGame = items.lateGames.find(object => object.game && object.game === currentGame)
+          const foundLateGame = items.lateGames.find(object => object.game && object.game === currentGame.game)
+          console.log(currentGame, foundLateGame, items.lateGames)
           await insertHistory({
             action: 'Devolução',
             game: currentGame.game,
-            client: items.cpf,
+            client: items.clientName,
             date: currentMoment,
             extraData: foundLateGame
               ? `Atrasado: ${foundLateGame.days}`
@@ -219,9 +233,9 @@ export const checkIn = (items) => {
       const bulkData = []
       for (let gameObject of referencedGamesArray) {
         bulkData.push({
-          range: `log!C${gameObject.rowIndex}:E${gameObject.rowIndex}`,
+          range: `log!C${gameObject.rowIndex}:D${gameObject.rowIndex}`,
           values: [
-            [`${items.cpf} (${currentMoment.format('DD/MM/YYYY HH:mm')})`, '']
+            [`${items.clientName} (${currentMoment.format('DD/MM/YYYY HH:mm')})`]
           ],
           majorDimension: 'ROWS'
         })
@@ -229,8 +243,8 @@ export const checkIn = (items) => {
 
       helpers.bulkUpdate(bulkData).then(async () => {
         for (let currentGame of referencedGamesArray) {
-        const gamePrice = currentGame.row[5] || 'não especificado'
-          await insertHistory({action: 'Locação', game: currentGame.game, client: items.cpf, date: currentMoment, extraData: `Preço: ${gamePrice}`})
+        const gamePrice = currentGame.row[4] || 'não especificado'
+          await insertHistory({action: 'Locação', game: currentGame.game, client: items.clientName, date: currentMoment, extraData: `Preço: ${gamePrice}`})
         }
         resolve({message: 'success'})
       }).catch(e => {

@@ -7,7 +7,8 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    gamesList: []
+    gamesList: [],
+    namesList: []
   },
   mutations: {
     'SET_OBJECT' (originalState, {name, data, state}) {
@@ -36,6 +37,14 @@ export default new Vuex.Store({
       const { data } = await sheetsApi.getAvaliableGamesList()
       commit('SET_OBJECT', {
         name: 'gamesList',
+        data,
+        state
+      })
+    },
+    async setNamesList({state, commit}) {
+      const { data } = await sheetsApi.getNamesList()
+      commit('SET_OBJECT', {
+        name: 'namesList',
         data,
         state
       })

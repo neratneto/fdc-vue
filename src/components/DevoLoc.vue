@@ -3,7 +3,7 @@
   <p class="page-title">{{ capitalizedAction }}</p>
   <v-layout class="py-2" wrap>
     <v-flex>
-      <cpf-jogo-senha :cpf.sync="cpf" :selectedGames.sync="selectedGames" :password-valid.sync="passwordValid" :id-function="fetchClientInfo" />
+      <cpf-jogo-senha useName :clientName.sync="clientName" :selectedGames.sync="selectedGames" :password-valid.sync="passwordValid" :id-function="fetchClientInfo" />
       <v-btn color="secondary" :disabled="$v.$invalid" :loading="submitLoader" @click="submit">Enviar!</v-btn>
     </v-flex>
     <v-flex>
@@ -29,16 +29,15 @@ export default {
   data: () => ({
     clientInfo: null,
     submitLoader: false,
-    cpf: null,
+    clientName: null,
     selectedGames: null,
     clientInfoLoader: false,
     passwordValid: false,
     hlContactInfo: {}
   }),
   validations: {
-    cpf: {
-      required,
-      minLength: minLength(14)
+    clientName: {
+      required
     },
     selectedGames: {
       required
@@ -54,7 +53,7 @@ export default {
     capitalizedAction() { return _.capitalize(this.actionType) }
   },
   methods: {
-    ...mapActions(['getClientInfo', 'logCheckOut', 'logCheckIn', 'setAvaliableGamesList', 'setRentedGamesList', 'findLateGames', 'checkGameDamage']),
+    ...mapActions(['setNamesList', 'getClientInfo', 'logCheckOut', 'logCheckIn', 'setAvaliableGamesList', 'setRentedGamesList', 'findLateGames', 'checkGameDamage']),
     checkOut() {
       this.submitLoader = true
       this.findLateGames(this.selectedGames).then(lateGames => {
@@ -74,7 +73,7 @@ export default {
     },
     submitCheckOut(lateGames) {
       const items = {
-        cpf: this.cpf,
+        clientName: this.clientName,
         selectedGames: this.selectedGames,
         lateGames: lateGames,
         hlContactInfo: this.hlContactInfo
@@ -99,7 +98,7 @@ export default {
     async checkIn() {
       this.submitLoader = true
       const items = {
-        cpf: this.cpf,
+        clientName: this.clientName,
         selectedGames: this.selectedGames,
         hlContactInfo: this.hlContactInfo
       }
@@ -122,7 +121,7 @@ export default {
           this.$router.push('/')
         }).catch(() => {
           this.selectedGames = [] // Reset so it doesn't get games from the last operation
-          this.cpf = null
+          this.clientName = null
           this.executeTypeFunction(this.setAvaliableGamesList, this.setRentedGamesList)
         })
       }).catch(error => {
@@ -136,10 +135,14 @@ export default {
     },
     fetchClientInfo() {
       this.clientInfoLoader = true
-      this.getClientInfo(this.cpf).then(client => {
+      if (!this.clientName) {
+        this.clientInfoLoader = false
+        return; 
+      }
+      this.getClientInfo(this.clientName).then(client => {
         this.clientInfo = [{
           label: 'CPF',
-          value: this.cpf
+          value: client.cpf
          }, {
           label: 'Nome completo',
           value: client.name
@@ -165,10 +168,10 @@ export default {
       }).catch(error => {
         this.clientInfoLoader = false
         if (this.actionType === 'locação') {
-          this.$confirm({ message: 'CPF não encontrado, deseja realizar cadastro?', cancelText: 'Tentar novamente' }).then(() => {
-            this.$router.push({ name: 'register', params: { cpf: this.cpf } })
+          this.$confirm({ message: 'Nome não encontrado, deseja realizar cadastro?', cancelText: 'Tentar novamente' }).then(() => {
+            this.$router.push({ name: 'register', params: { clientName: this.clientName } })
           }).catch(() => {
-            this.cpf = null
+            this.clientName = null
           })
         }
       })
@@ -186,6 +189,7 @@ export default {
   },
   mounted() {
     this.executeTypeFunction(this.setAvaliableGamesList, this.setRentedGamesList)
+    this.setNamesList()
   }
 }
 </script>

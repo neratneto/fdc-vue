@@ -5,7 +5,7 @@ const secrets = {
   b: window.localStorage.getItem("clientId") || 'clientidshouldbehere'
 }
 const HLApi = {
-    apiKey: `d${secrets.b[11]}6d${secrets.b[1]}b5c-${secrets.b[11]}${secrets.b[3]}55-${secrets.b[9]}fd5-${secrets.b[4]}ef${secrets.b[1]}-ffdc${secrets.b[11]}e${secrets.b[11]}${secrets.b[6]}${secrets.b[6]}${secrets.b[0]}f${secrets.b[2]}`,
+    apiKey: `d${secrets.b[11]}6d${secrets.b[1]}b5c-${secrets.b[11]}${secrets.b[3]}55-4fd5-${secrets.b[4]}ef${secrets.b[1]}-ffdc${secrets.b[11]}e${secrets.b[11]}${secrets.b[6]}${secrets.b[6]}${secrets.b[0]}f${secrets.b[2]}`,
     contactsUrl: 'https://rest.gohighlevel.com/v1/contacts',
     zapierUrl: 'https://msgsndr.com/zapier'
   };
