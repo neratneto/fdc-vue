@@ -138,6 +138,9 @@ export default {
       this.clientInfoLoader = true
       this.getClientInfo(this.cpf).then(client => {
         this.clientInfo = [{
+          label: 'CPF',
+          value: this.cpf
+         }, {
           label: 'Nome completo',
           value: client.name
         }, {
