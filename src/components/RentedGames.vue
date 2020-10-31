@@ -58,7 +58,7 @@ export default {
       })
     },
     formatDate(date) {
-      return date.format('DD/MM/YYYY | HH:mm')
+      return date._isValid ? date.format('DD/MM/YYYY | HH:mm') : ' '
     },
     isRentLate(date) {
       const daysDifference = this.$moment().diff(date, 'days')
