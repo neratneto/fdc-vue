@@ -8,6 +8,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     gamesList: [],
+    gamesObjectList: [],
     namesList: []
   },
   mutations: {
@@ -32,6 +33,11 @@ export default new Vuex.Store({
         data,
         state
       })
+      commit('SET_OBJECT', {
+        name: 'gamesObjectList',
+        data: response.data,
+        state
+      })
     },
     async setAvaliableGamesList({state, commit}) {
       const { data } = await sheetsApi.getAvaliableGamesList()
@@ -53,6 +59,10 @@ export default new Vuex.Store({
       const { data } = await sheetsApi.getClientInfoById(id)
       return data
     },
+    async getClientInfoFromName({}, name) {
+      const { data } = await sheetsApi.getClientInfoByName(name)
+      return data
+    },
     async getRentedGames({}) {
       const { data } = await sheetsApi.getRentedGamesList()
       return data
@@ -72,7 +82,11 @@ export default new Vuex.Store({
 
       if (response.message === 'success') {
         try {
-          await fireTrigger(payload.hlContactInfo, 'fdc-checkout')
+          if (payload.hlContactInfo.length > 0) {
+            payload.hlContactInfo.forEach(async contact => {
+              fireTrigger(contact, 'fdc-checkout')
+            })
+          }
         } catch (err) { }     
         
         return 'success'

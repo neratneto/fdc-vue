@@ -3,14 +3,31 @@
   <p class="page-title">{{ capitalizedAction }}</p>
   <v-layout class="py-2" wrap>
     <v-flex>
-      <cpf-jogo-senha useName :clientName.sync="clientName" :selectedGames.sync="selectedGames" :password-valid.sync="passwordValid" :id-function="fetchClientInfo" />
+      <cpf-jogo-senha useName :useCpf="false" :clientName.sync="clientName" :selectedGames.sync="selectedGames" :password-valid.sync="passwordValid" :id-function="fetchClientInfo" />
       <v-btn color="secondary" :disabled="$v.$invalid" :loading="submitLoader" @click="submit">Enviar!</v-btn>
     </v-flex>
     <v-flex>
-      <v-card class="pa-3" v-if="clientInfo && !clientInfoLoader">
+      <v-progress-circular v-if="clientInfoLoader" indeterminate size="40" color="secondary" />
+      <v-card class="pa-3" v-if="clientInfo">
+        <h3>Realizando a {{ capitalizedAction }}</h3>
         <p v-for="(info, index) in clientInfo" :key="index">{{ info.label }}: {{ info.value }}</p>
       </v-card>
-      <v-progress-circular v-if="clientInfoLoader" indeterminate size="160" color="secondary" />
+      <v-card class="my-2" width="300px" v-if="clientInfoArray.length > 0">
+        <v-card-actions>
+          <p>Atualização de devolução</p>
+          <v-spacer></v-spacer> <v-btn @click="clearAll">clear</v-btn>
+        </v-card-actions>
+        <v-expansion-panel>
+          <v-expansion-panel-content
+          v-for="clientInfo in clientInfoArray" :key="clientInfo.cpf"
+          >
+          <template v-slot:header>
+              {{ clientInfo[1].value }}
+            </template>
+            <h4 class="my-1 mx-3" style="font-weight: 400;" v-for="(info, index) in clientInfo" :key="index">{{ info.label }}: {{ info.value }}</h4>
+            </v-expansion-panel-content>
+        </v-expansion-panel>
+      </v-card>
     </v-flex>
   </v-layout>
 </v-container>
@@ -19,7 +36,7 @@
 <script>
 import _ from 'lodash'
 import CpfJogoSenha from './CpfJogoSenha.vue'
-import { mapActions } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import { required, minLength } from 'vuelidate/lib/validators'
 
 export default {
@@ -33,12 +50,10 @@ export default {
     selectedGames: null,
     clientInfoLoader: false,
     passwordValid: false,
-    hlContactInfo: {}
+    hlContactInfo: {},
+    clientInfoArray: []
   }),
   validations: {
-    clientName: {
-      required
-    },
     selectedGames: {
       required
     },
@@ -46,14 +61,42 @@ export default {
       isTrue: (value) => value === true
     }
   },
+  watch: {
+    selectedGames(value, oldValue) {
+      if (this.isDevolucao && value) {
+        if (value.length === 1 && !oldValue) {
+          this.fetchClientInfoFromGameToArray(value[0])
+        } else if (value.length > oldValue.length) {
+          this.fetchClientInfoFromGameToArray(value[value.length - 1])
+        } else if (value.length === 0) {
+          this.clearAll()
+        }
+      }
+    }
+  },
   props: {
     actionType: String
   },
   computed: {
-    capitalizedAction() { return _.capitalize(this.actionType) }
+    ...mapState({
+      gamesObjectList: state => state.gamesObjectList
+    }),
+    capitalizedAction() { return _.capitalize(this.actionType) },
+    isLocacao() { return Boolean(this.actionType === 'locação') },
+    isDevolucao() { return Boolean(this.actionType === 'devolução') }
   },
   methods: {
-    ...mapActions(['setNamesList', 'getClientInfo', 'logCheckOut', 'logCheckIn', 'setAvaliableGamesList', 'setRentedGamesList', 'findLateGames', 'checkGameDamage']),
+    ...mapActions(['setNamesList', 'getClientInfo', 'getClientInfoFromName', 'logCheckOut', 'logCheckIn', 'setAvaliableGamesList', 'setRentedGamesList', 'findLateGames', 'checkGameDamage']),
+    clearAll() {
+      this.clientInfo = null
+      this.submitLoader = false
+      this.clientName = null
+      this.selectedGames = null
+      this.clientInfoLoader = false
+      this.passwordValid = false
+      this.hlContactInfo = {}
+      this.clientInfoArray = []
+    },
     checkOut() {
       this.submitLoader = true
       this.findLateGames(this.selectedGames).then(lateGames => {
@@ -72,11 +115,18 @@ export default {
       })
     },
     submitCheckOut(lateGames) {
+      const hlContactInfoArray = this.clientInfoArray.map(fieldsArray => {
+        return {
+          name: fieldsArray[1] && fieldsArray[1].value ? fieldsArray[1].value : '',
+          phone: fieldsArray[3] && fieldsArray[3].value ? fieldsArray[3].value : '',
+          email: fieldsArray[4] && fieldsArray[4].value ? fieldsArray[4].value : ''
+        }
+      })
       const items = {
         clientName: this.clientName,
         selectedGames: this.selectedGames,
         lateGames: lateGames,
-        hlContactInfo: this.hlContactInfo
+        hlContactInfo: hlContactInfoArray
       }
 
       this.logCheckOut(items).then(response => {
@@ -133,13 +183,65 @@ export default {
         })
       })
     },
+    async fetchClientInfoFromGameToArray(game) {
+      this.clientInfoLoader = true
+      const found = this.gamesObjectList.find(obj => obj.game === game)
+      console.log(this.gamesObjectList, found, game, found.client_id)
+      try {
+        let client = await this.getClientInfo(found.client_id)
+        this.clientInfoArray.push([{
+          label: 'CPF',
+          value: client.cpf
+         }, {
+          label: 'Nome completo',
+          value: client.name
+        }, {
+          label: 'Endereço',
+          value: client.address
+        }, {
+          label: 'Celular',
+          value: client.cel
+        }, {
+          label: 'Email',
+          value: client.email
+        }, {
+          label: 'Rede social',
+          value: client.social
+        }])
+      } catch (err) {
+        console.error(err)
+        let client = await this.getClientInfoFromName(found.client_id)
+        console.log(client)
+        this.clientInfoArray.push([{
+          label: 'CPF',
+          value: client.cpf
+         }, {
+          label: 'Nome completo',
+          value: client.name
+        }, {
+          label: 'Endereço',
+          value: client.address
+        }, {
+          label: 'Celular',
+          value: client.cel
+        }, {
+          label: 'Email',
+          value: client.email
+        }, {
+          label: 'Rede social',
+          value: client.social
+        }])
+      } finally {
+        this.clientInfoLoader = false
+      }
+    },
     fetchClientInfo() {
       this.clientInfoLoader = true
       if (!this.clientName) {
         this.clientInfoLoader = false
         return; 
       }
-      this.getClientInfo(this.clientName).then(client => {
+      this.getClientInfoFromName(this.clientName).then(client => {
         this.clientInfo = [{
           label: 'CPF',
           value: client.cpf

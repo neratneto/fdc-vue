@@ -29,6 +29,7 @@ const HLApi = {
       }
 
       const hlResponse = await axios.post(`${HLApi.zapierUrl}/contact/add_update`, contactBody, config)
+      console.log(hlResponse, contactBody)
       return hlResponse
     } catch (err) {
       console.error(err)

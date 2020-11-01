@@ -77,7 +77,12 @@ export const getRentedGamesList = () => {
     helpers.getRange('log', 'A2:D', 'ROWS').then(sheetsResponse => {
       const gamesArray = sheetsResponse.filter(element => element[2] && !element[3]).map(element => {
         const rentInfo = element[2].replace('(', '').replace(')', '').split(' ')
-        return {game: element[0], client_id: rentInfo[0], date: `${rentInfo[rentInfo.length - 2]} ${rentInfo[rentInfo.length - 1]}`}
+        const date = `${rentInfo[rentInfo.length - 2]} ${rentInfo[rentInfo.length - 1]}`
+        rentInfo.pop()
+        rentInfo.pop()
+        const client_id = rentInfo.join(' ') 
+
+        return {game: element[0], client_id, date }
       })
       resolve({data: gamesArray})
     })
@@ -114,11 +119,11 @@ export const findLateGamesList = (gamesArray) => {
   })
 }
 
-export const getClientInfoById = (id) => {
+export const getClientInfoByName = (name) => {
   return new Promise((resolve, reject) => {
-    if (id) {
+    if (name) {
       helpers.getRange('registers', 'A2:F', 'ROWS').then(sheetsResponse => {
-        const clientArray = sheetsResponse.find(array => array[1] === id)
+        const clientArray = sheetsResponse.find(array => array[1].includes(name))
         if (clientArray) {
           const clientObject = {
             cpf: clientArray[0],
@@ -130,7 +135,35 @@ export const getClientInfoById = (id) => {
           }
           resolve({data: clientObject})
         } else {
-          reject('Name not found')
+          reject(`Name ${name} not found`)
+        }
+      })
+      .catch(err => {
+        console.error(err)
+        reject()
+      })
+    }
+  })
+}
+
+
+export const getClientInfoById = (id) => {
+  return new Promise((resolve, reject) => {
+    if (id) {
+      helpers.getRange('registers', 'A2:F', 'ROWS').then(sheetsResponse => {
+        const clientArray = sheetsResponse.find(array => array[0] === id)
+        if (clientArray) {
+          const clientObject = {
+            cpf: clientArray[0],
+            name: clientArray[1],
+            address: clientArray[2],
+            cel: clientArray[3],
+            email: clientArray[4],
+            social: clientArray[5]
+          }
+          resolve({data: clientObject})
+        } else {
+          reject(`CPF ${id} not found`)
         }
       })
       .catch(err => {

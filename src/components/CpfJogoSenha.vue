@@ -1,7 +1,7 @@
 <template>
 <v-layout align-start justify-left fill-height column>
   <v-autocomplete v-if="useName" @change="idFunction" style="max-width: 480px;" autocomplete="interfacefdc1" label="Nome completo" clearable name="interfacefdc1" deletable-chips :items="possibleNames" v-model="scopedClientName" solo required />
-  <v-text-field v-else autocomplete="interfacefdc1" name="interfacefdc1" label="CPF" v-model="scopedCpf" clearable solo mask="###.###.###-##" @input="validateId" return-masked-value required />
+  <v-text-field v-else-if="useCpf" autocomplete="interfacefdc1" name="interfacefdc1" label="CPF" v-model="scopedCpf" clearable solo mask="###.###.###-##" @input="validateId" return-masked-value required />
   <v-autocomplete style="max-width: 480px;" autocomplete="interfacefdc2" label="Jogos" multiple chips clearable name="interfacefdc2" deletable-chips :items="possibleGames" v-model="scopedSelectedGames" solo required />
   <v-text-field label="Senha do administrador" autocomplete="interfacefdc3" clearable name="interfacefdc3" v-model="adminPassword" solo :append-icon="visibility ? 'visibility' : 'visibility_off'" @click:append="() => (visibility = !visibility)" :type="visibility ? 'password' : 'text'"
     required :error="passwordError" />
@@ -22,8 +22,12 @@ export default {
       type: Boolean,
       default: false
     },
-    cpf: String,
     clientName: String,
+    useCpf: {
+      type: Boolean,
+      default: true
+    },
+    cpf: String,
     selectedGames: [Array, String],
     idFunction: Function
   },
