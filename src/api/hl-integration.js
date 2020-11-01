@@ -18,9 +18,10 @@ const HLApi = {
         email: contact.email,
         name: contact.name,
         phone: contact.phone || contact.cel,
-        source: 'interface fdc',
         timezone: 'America/Sao_Paulo'
       }
+      if (contact.address) contactBody.address = contact.address
+      if (contact.indication) contactBody.source = contact.indication
 
       let config = {
         headers: {
