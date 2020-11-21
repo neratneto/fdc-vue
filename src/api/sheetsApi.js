@@ -92,7 +92,9 @@ export const getRentedGamesList = () => {
 export const getAvaliableGamesList = () => {
   return new Promise((resolve, reject) => {
     helpers.getRange('log', 'A2:D', 'ROWS').then(sheetsResponse => {
-      const gamesArray = sheetsResponse.filter(element => element[1] && !element[2] && !element[3]).map(element => element[0])
+      const gamesArray = sheetsResponse
+        .filter(element => !(element[2] && !element[3])) // único caso que não está disponível é se for locado e não devolvido. Todos os outros sim.
+        .map(element => element[0])
       resolve({data: gamesArray})
     })
   })
@@ -182,9 +184,9 @@ export const revision = (items) => {
       const bulkData = []
       for (let gameObject of referencedGamesArray) {
         bulkData.push({
-          range: `log!B${gameObject.rowIndex}:D${gameObject.rowIndex}`,
+          range: `log!B${gameObject.rowIndex}:B${gameObject.rowIndex}`,
           values: [
-            [`${items.adminName} (${currentMoment.format('DD/MM/YYYY HH:mm')})`, '', '']
+            [`${items.adminName} (${currentMoment.format('DD/MM/YYYY HH:mm')})`]
           ],
           majorDimension: 'ROWS'
         })
