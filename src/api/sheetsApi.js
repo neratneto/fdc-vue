@@ -270,7 +270,7 @@ export const checkIn = (items) => {
         bulkData.push({
           range: `log!C${gameObject.rowIndex}:D${gameObject.rowIndex}`,
           values: [
-            [`${items.clientName} (${currentMoment.format('DD/MM/YYYY HH:mm')})`]
+            [`${items.clientName} (${currentMoment.format('DD/MM/YYYY HH:mm')})`, '']
           ],
           majorDimension: 'ROWS'
         })
