@@ -11,7 +11,7 @@
     "axios": "^0.20.0",
     "lodash.assign": "^4.2.0",
     "lodash.clonedeep": "^4.5.0",
-    "moment": "2.24.0",
+    "moment": "2.29.2",
     "vue": "^2.5.22",
     "vue-moment-lib": "1.2.2",
     "vue-router": "^3.0.1",
